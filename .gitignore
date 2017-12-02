@@ -1,0 +1,5 @@
+*
+!.gitignore
+!.git/
+!Labyrinth.*
+!LabLevel1.*
