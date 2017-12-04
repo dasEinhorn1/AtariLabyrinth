@@ -78,7 +78,7 @@
    ;'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
    ;  Minotaur awareness radius
    ;
-   const _Minotaur_Awareness_Size = 50
+   const _Minotaur_Awareness_Size = 100
 
    ;```````````````````````````````````````````````````````````````
    ;  Gem Stuff
@@ -228,16 +228,30 @@ __Start_Restart
    ;
    _Bit0_Reset_Restrainer{0} = 1
 
+;   playfield:
+;   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+;   X..............................X
+;   X..............................X
+;   X..............................X
+;   X..............................X
+;   X..............XX..............X
+;   X..............................X
+;   X..............................X
+;   X..............................X
+;   X..............................X
+;   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+;end
+
    playfield:
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    X..............................X
+   X..XXXXXX....XX..XX....XXXXXX..X
+   X..X........XXX..XXX........X..X
    X..............................X
+   X..XX..XX..XX..XX..XX..XX..XX..X
    X..............................X
-   X..............................X
-   X..............XX..............X
-   X..............................X
-   X..............................X
-   X..............................X
+   X..X........XXX..XXX........X..X
+   X..XXXXXX....XX..XX....XXXXXX..X
    X..............................X
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 end

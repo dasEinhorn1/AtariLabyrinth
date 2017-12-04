@@ -1843,7 +1843,7 @@ game
 .
  ; 
 
-.L019 ;  const _Minotaur_Awareness_Size  =  50
+.L019 ;  const _Minotaur_Awareness_Size  =  100
 
 .
  ; 
@@ -2322,6 +2322,48 @@ game
 .
  ; 
 
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
 .L052 ;  playfield:
 
   ifconst pfres
@@ -2339,33 +2381,33 @@ PF_data0
 	if (pfwidth>2)
 	.byte %00000000, %10000000
  endif
-	.byte %10000000, %00000000
+	.byte %10011111, %01100001
 	if (pfwidth>2)
-	.byte %00000000, %10000000
+	.byte %01100001, %10011111
+ endif
+	.byte %10010000, %01110000
+	if (pfwidth>2)
+	.byte %01110000, %10010000
  endif
 	.byte %10000000, %00000000
 	if (pfwidth>2)
 	.byte %00000000, %10000000
  endif
-	.byte %10000000, %00000000
+	.byte %10011001, %10011001
 	if (pfwidth>2)
-	.byte %00000000, %10000000
- endif
-	.byte %10000000, %10000000
-	if (pfwidth>2)
-	.byte %10000000, %10000000
+	.byte %10011001, %10011001
  endif
 	.byte %10000000, %00000000
 	if (pfwidth>2)
 	.byte %00000000, %10000000
  endif
-	.byte %10000000, %00000000
+	.byte %10010000, %01110000
 	if (pfwidth>2)
-	.byte %00000000, %10000000
+	.byte %01110000, %10010000
  endif
-	.byte %10000000, %00000000
+	.byte %10011111, %01100001
 	if (pfwidth>2)
-	.byte %00000000, %10000000
+	.byte %01100001, %10011111
  endif
 	.byte %10000000, %00000000
 	if (pfwidth>2)
