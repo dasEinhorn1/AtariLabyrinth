@@ -24,6 +24,7 @@
    ;
    ;***************************************************************
 
+   set smartbranching on
 
    ;***************************************************************
    ;
@@ -81,9 +82,10 @@
    const _Minotaur_Awareness_Size = 100
 
    ;```````````````````````````````````````````````````````````````
-   ;  Gem Stuff
+   ;  Game Stuff
    ;
    dim _Bit0_Carrying_Gem = x
+   dim _Bit1_Game_Over = x
 
    ;```````````````````````````````````````````````````````````````
    ;  Bits that do various jobs.
@@ -91,7 +93,6 @@
    dim _BitOp_01 = y
    dim _Bit0_Reset_Restrainer = y
    dim _Bit1_Toggle_Screen = y
-   dim _Bit2_M0_Moving = y
 
    ;```````````````````````````````````````````````````````````````
    ;  Makes better random numbers.
@@ -189,13 +190,14 @@ __Start_Restart
    ;***************************************************************
    ; Set up gem starting position
    ;
-   ballx = 80 : bally = 79
+   missile0x = 80 : missile0y = 79
 
    ;***************************************************************
    ;
    ;  Defines missile0 size.
    ;
    NUSIZ0 = $10 : missile0height = 1
+   NUSIZ1 = $30 : missile0height = 4
 
 
    ;***************************************************************
@@ -248,7 +250,7 @@ __Start_Restart
    X..XXXXXX....XX..XX....XXXXXX..X
    X..X........XXX..XXX........X..X
    X..............................X
-   X..XX..XX..XX..XX..XX..XX..XX..X
+   X..XX..XX..XX......XX..XX..XX..X
    X..............................X
    X..X........XXX..XXX........X..X
    X..XXXXXX....XX..XX....XXXXXX..X
@@ -277,11 +279,14 @@ end
    %00111100
    %00100100
 end
+   ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+   ;  Reset the score
+   ;
+   score = 0
 
    dim _sc1 = score ; 100,000s and 10,000s (XX 00 00)
    dim _sc2 = score+1 ; 1,000s and 100s (00 XX 00)
    dim _sc3 = score+2 ; 10s and ones (00 00 XX)
-
 
    ;***************************************************************
    ;***************************************************************
@@ -291,6 +296,25 @@ end
    ;
 __Main_Loop
 
+   if _Bit1_Game_Over{1} then if joy0fire goto __Start_Restart
+
+   ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+   ;  Check collision
+   ;
+   if !collision(player0, player1) then __Skip_Player_Caught
+   _Bit1_Game_Over{1} = 1
+   goto __Game_Over
+__Skip_Player_Caught
+
+   ;***************************************************************
+   ;
+   ;  Defines missile0 size.
+   ;
+   NUSIZ0 = $10 : missile0height = 1
+   NUSIZ1 = $30 : missile1height = 7
+
+   missile1x = 78 : missile1y = 48
+
    _Frame_Count = _Frame_Count + 1
 
    ;***************************************************************
@@ -298,7 +322,7 @@ __Main_Loop
    ;  Sets color of player0 sprite.
    ;
    COLUP0 = $9C
-   COLUP1 = $C9
+   COLUP1 = $34
    scorecolor = $9C
 
    ;***************************************************************
@@ -686,92 +710,49 @@ __Skip_AI_Left
 
 __Skip_AI_Right
 
-   if !collision(ball, player0) then __Skip_Gem_Collection
+
+;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+;  Pick up the gem
+;
+   if !collision(missile0, player0) then __Skip_Gem_Collection
    _Bit0_Carrying_Gem{0} = 1
-   score = score + 1
-   ballx = (rand & 118) + 23 : bally = (rand & 70) + 9
+   missile0x = 200 : missile0y = 200
 __Skip_Gem_Collection
 
+   ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+   ;  Deposit the gem on the platform
+   ;
+   if !collision(missile1, player0) then __Skip_Gem_Deposit
+   if !_Bit0_Carrying_Gem{0} then __Skip_Gem_Deposit
+   _Bit0_Carrying_Gem{0} = 0
+   score = score + 1
+   missile0x = (rand & 118) + 23 : missile0y = (rand & 70) + 9
+__Skip_Gem_Deposit
 
-   ;***************************************************************
-   ;
-   ;  Fire button check.
-   ;
-   ;  If fire button is pressed appropriately and missile0
-   ;  is not moving, turns on missile0 movement.
-   ;
-   ;```````````````````````````````````````````````````````````````
-   ;  Skips this section if the fire button is not pressed.
-   ;
-   if !joy0fire then goto __Skip_Fire
+__Game_Over
+   if !_Bit1_Game_Over{1} then goto __Skip_Game_Over
+   COLUPF = 14
+   scorecolor = 14
+   COLUBK = $36
+   playfield:
+   ....XXXXX..XXXX..XX.XX..XXXX....
+   ....X......X..X..X.X.X..X.......
+   ....X..XX..XXXX..X.X.X..XXX.....
+   ....X...X..X..X..X.X.X..X.......
+   ....XxXXX..X..X..X.X.X..XXXX....
+   ................................
+   ....XXXXX..X...X..XXXX..XXX.....
+   ....X...X..X...X..X.....X..X....
+   ....X...X..X...X..XXX...XXX.....
+   ....X...X...X.X...X.....X..X....
+   ....XXXXX....X....XXXX..X..X....
+end
 
-   ;```````````````````````````````````````````````````````````````
-   ;  Skips this section if missile0 is moving.
-   ;
-   if _Bit2_M0_Moving{7} then goto __Skip_Fire
-
-   ;```````````````````````````````````````````````````````````````
-   ;  Turns on missile0 movement.
-   ;
-   _Bit2_M0_Moving{7} = 1
-
-   ;```````````````````````````````````````````````````````````````
-   ;  Takes a 'snapshot' of player0 direction so missile0 will
-   ;  stay on track until it hits something.
-   ;
-   _Bit4_M0_Dir_Up{4} = _Bit0_P0_Dir_Up{0}
-   _Bit5_M0_Dir_Down{5} = _Bit1_P0_Dir_Down{1}
-   _Bit6_M0_Dir_Left{6} = _Bit2_P0_Dir_Left{2}
-   _Bit7_M0_Dir_Right{7} = _Bit3_P0_Dir_Right{3}
-
-   ;```````````````````````````````````````````````````````````````
-   ;  Sets up starting position of missile0.
-   ;
-   if _Bit4_M0_Dir_Up{4} then missile0x = player0x + 4 : missile0y = player0y - 5
-   if _Bit5_M0_Dir_Down{5} then missile0x = player0x + 4 : missile0y = player0y - 1
-   if _Bit6_M0_Dir_Left{6} then missile0x = player0x + 2 : missile0y = player0y - 3
-   if _Bit7_M0_Dir_Right{7} then missile0x = player0x + 6 : missile0y = player0y - 3
-
-__Skip_Fire
-
-   ;***************************************************************
-   ;
-   ;  Missile0 movement check.
-   ;
-   ;```````````````````````````````````````````````````````````````
-   ;  Skips this section if missile0 isn't moving.
-   ;
-   if !_Bit2_M0_Moving{7} then goto __Skip_Missile
-
-   ;```````````````````````````````````````````````````````````````
-   ;  Moves missile0 in the appropriate direction.
-   ;
-   if _Bit4_M0_Dir_Up{4} then missile0y = missile0y - 2
-   if _Bit5_M0_Dir_Down{5} then missile0y = missile0y + 2
-   if _Bit6_M0_Dir_Left{6} then missile0x = missile0x - 2
-   if _Bit7_M0_Dir_Right{7} then missile0x = missile0x + 2
-
-   ;```````````````````````````````````````````````````````````````
-   ;  Clears missile0 if it hits the edge of the screen.
-   ;
-   if missile0y < _M_Edge_Top then goto __Skip_to_Clear_Missile
-   if missile0y > _M_Edge_Bottom then goto __Skip_to_Clear_Missile
-   if missile0x < _M_Edge_Left then goto __Skip_to_Clear_Missile
-   if missile0x > _M_Edge_Right then goto __Skip_to_Clear_Missile
-
-   ;```````````````````````````````````````````````````````````````
-   ;  Skips rest of section if no collision.
-   ;
-   if !collision(playfield,missile0) then goto __Skip_Missile
-
-__Skip_to_Clear_Missile
-
-   ;```````````````````````````````````````````````````````````````
-   ;  Clears missile0 moving bit and moves missile0 off the screen.
-   ;
-   _Bit2_M0_Moving{7} = 0 : missile0x = 200 : missile0y = 200
-
-__Skip_Missile
+   player0x = 200 : player0y = 200
+   player1x = 200 : player1y = 200
+   missile0x = 200 : missile0y = 200
+   missile1x = 200 : missile1y = 200
+__Skip_Game_Over
 
    ;***************************************************************
    ;

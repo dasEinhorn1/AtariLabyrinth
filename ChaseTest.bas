@@ -91,6 +91,7 @@
   dim _Bit5_P0_Dir_Down = g
   dim _Bit6_P0_Dir_Left = g
   dim _Bit7_P0_Dir_Right = g
+
   ;```````````````````````````````````````````````````````````````
   ;  Bits that do various jobs.
   ;
@@ -208,32 +209,32 @@ __Start_Restart
   ;
   ;  Defines playfield
   ;
-  playfield:
-  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  X..............................X
-  X..XXXXXX....XX..XX....XXXXXX..X
-  X..X........XXX..XXX........X..X
-  X..............................X
-  X..XX..XX..XX..XX..XX..XX..XX..X
-  X..............................X
-  X..X........XXX..XXX........X..X
-  X..XXXXXX....XX..XX....XXXXXX..X
-  X..............................X
-  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-end
 ;  playfield:
 ;  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ;  X..............................X
+;  X..XXXXXX....XX..XX....XXXXXX..X
+;  X..X........XXX..XXX........X..X
 ;  X..............................X
+;  X..XX..XX..XX..XX..XX..XX..XX..X
 ;  X..............................X
-;  X..............................X
-;  X..............XX..............X
-;  X..............................X
-;  X..............................X
-;  X..............................X
+;  X..X........XXX..XXX........X..X
+;  X..XXXXXX....XX..XX....XXXXXX..X
 ;  X..............................X
 ;  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ;end
+  playfield:
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  X..............................X
+  X..............................X
+  X..............................X
+  X..............................X
+  X..............XX..............X
+  X..............................X
+  X..............................X
+  X..............................X
+  X..............................X
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+end
   ;***************************************************************
   ;
   ;  Defines shape of player1 sprite.
