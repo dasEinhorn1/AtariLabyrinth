@@ -288,6 +288,9 @@ end
    dim _sc2 = score+1 ; 1,000s and 100s (00 XX 00)
    dim _sc3 = score+2 ; 10s and ones (00 00 XX)
 
+   r = 2
+   dim _Chase_Speed = r
+
    ;***************************************************************
    ;***************************************************************
    ;
@@ -297,6 +300,9 @@ end
 __Main_Loop
 
    if _Bit1_Game_Over{1} then if joy0fire goto __Start_Restart
+
+   if score > 15 then _Chase_Speed = 1
+   if score > 30 then _Chase_Speed = 0
 
    ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
    ;  Check collision
@@ -523,7 +529,7 @@ __Skip_Joy0_Right
 
    temp5 = _Minotaur_Awareness_Size
 
-   if _Frame_Count & 1 then goto __Skip_AI_Right
+   if _Frame_Count & _Chase_Speed then goto __Skip_AI_Right
 
    ; check player top >= awareness bottom
    if player0y >= temp4 + temp5 then goto __Skip_AI_Right

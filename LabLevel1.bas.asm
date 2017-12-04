@@ -2481,6 +2481,15 @@ pflabel0
 .
  ; 
 
+.L061 ;  r  =  2
+
+	LDA #2
+	STA r
+.L062 ;  dim _Chase_Speed  =  r
+
+.
+ ; 
+
 .
  ; 
 
@@ -2505,11 +2514,11 @@ pflabel0
 .
  ; 
 
-.L061 ;  if _Bit1_Game_Over{1} then if joy0fire goto __Start_Restart
+.L063 ;  if _Bit1_Game_Over{1} then if joy0fire goto __Start_Restart
 
 	LDA _Bit1_Game_Over
 	AND #2
-	BEQ .skipL061
+	BEQ .skipL063
 .condpart0
  bit INPT4
  if ((* - .__Start_Restart) < 127) && ((* - .__Start_Restart) > -128)
@@ -2519,7 +2528,28 @@ pflabel0
 	jmp .__Start_Restart
 .0skip__Start_Restart
  endif
-.skipL061
+.skipL063
+.
+ ; 
+
+.L064 ;  if score  >  15 then _Chase_Speed  =  1
+
+	LDA #15
+	CMP score
+     BCS .skipL064
+.condpart1
+	LDA #1
+	STA _Chase_Speed
+.skipL064
+.L065 ;  if score  >  30 then _Chase_Speed  =  0
+
+	LDA #30
+	CMP score
+     BCS .skipL065
+.condpart2
+	LDA #0
+	STA _Chase_Speed
+.skipL065
 .
  ; 
 
@@ -2532,7 +2562,7 @@ pflabel0
 .
  ; 
 
-.L062 ;  if !collision(player0,player1) then __Skip_Player_Caught
+.L066 ;  if !collision(player0,player1) then __Skip_Player_Caught
 
 	bit 	CXPPMM
  if ((* - .__Skip_Player_Caught) < 127) && ((* - .__Skip_Player_Caught) > -128)
@@ -2542,12 +2572,12 @@ pflabel0
 	jmp .__Skip_Player_Caught
 .1skip__Skip_Player_Caught
  endif
-.L063 ;  _Bit1_Game_Over{1}  =  1
+.L067 ;  _Bit1_Game_Over{1}  =  1
 
 	LDA _Bit1_Game_Over
 	ORA #2
 	STA _Bit1_Game_Over
-.L064 ;  goto __Game_Over
+.L068 ;  goto __Game_Over
 
  jmp .__Game_Over
 
@@ -2569,13 +2599,13 @@ pflabel0
 .
  ; 
 
-.L065 ;  NUSIZ0  =  $10  :  missile0height  =  1
+.L069 ;  NUSIZ0  =  $10  :  missile0height  =  1
 
 	LDA #$10
 	STA NUSIZ0
 	LDA #1
 	STA missile0height
-.L066 ;  NUSIZ1  =  $30  :  missile1height  =  7
+.L070 ;  NUSIZ1  =  $30  :  missile1height  =  7
 
 	LDA #$30
 	STA NUSIZ1
@@ -2584,7 +2614,7 @@ pflabel0
 .
  ; 
 
-.L067 ;  missile1x  =  78  :  missile1y  =  48
+.L071 ;  missile1x  =  78  :  missile1y  =  48
 
 	LDA #78
 	STA missile1x
@@ -2593,7 +2623,7 @@ pflabel0
 .
  ; 
 
-.L068 ;  _Frame_Count  =  _Frame_Count  +  1
+.L072 ;  _Frame_Count  =  _Frame_Count  +  1
 
 	INC _Frame_Count
 .
@@ -2611,15 +2641,15 @@ pflabel0
 .
  ; 
 
-.L069 ;  COLUP0  =  $9C
+.L073 ;  COLUP0  =  $9C
 
 	LDA #$9C
 	STA COLUP0
-.L070 ;  COLUP1  =  $34
+.L074 ;  COLUP1  =  $34
 
 	LDA #$34
 	STA COLUP1
-.L071 ;  scorecolor  =  $9C
+.L075 ;  scorecolor  =  $9C
 
 	LDA #$9C
 	STA scorecolor
@@ -2647,28 +2677,28 @@ pflabel0
 .
  ; 
 
-.L072 ;  if !joy0up  &&  !joy0down  &&  !joy0left  &&  !joy0right then goto __Skip_Joystick_Precheck
+.L076 ;  if !joy0up  &&  !joy0down  &&  !joy0left  &&  !joy0right then goto __Skip_Joystick_Precheck
 
  lda #$10
  bit SWCHA
-	BEQ .skipL072
-.condpart1
+	BEQ .skipL076
+.condpart3
  lda #$20
  bit SWCHA
-	BEQ .skip1then
-.condpart2
- bit SWCHA
-	BVC .skip2then
-.condpart3
- bit SWCHA
-	BPL .skip3then
+	BEQ .skip3then
 .condpart4
+ bit SWCHA
+	BVC .skip4then
+.condpart5
+ bit SWCHA
+	BPL .skip5then
+.condpart6
  jmp .__Skip_Joystick_Precheck
 
+.skip5then
+.skip4then
 .skip3then
-.skip2then
-.skip1then
-.skipL072
+.skipL076
 .
  ; 
 
@@ -2681,7 +2711,7 @@ pflabel0
 .
  ; 
 
-.L073 ;  _BitOp_P0_M0_Dir  =  _BitOp_P0_M0_Dir  &  %11110000
+.L077 ;  _BitOp_P0_M0_Dir  =  _BitOp_P0_M0_Dir  &  %11110000
 
 	LDA _BitOp_P0_M0_Dir
 	AND #%11110000
@@ -2716,15 +2746,15 @@ pflabel0
 .
  ; 
 
-.L074 ;  if !joy0up then goto __Skip_Joy0_Up
+.L078 ;  if !joy0up then goto __Skip_Joy0_Up
 
  lda #$10
  bit SWCHA
-	BEQ .skipL074
-.condpart5
+	BEQ .skipL078
+.condpart7
  jmp .__Skip_Joy0_Up
 
-.skipL074
+.skipL078
 .
  ; 
 
@@ -2737,7 +2767,7 @@ pflabel0
 .
  ; 
 
-.L075 ;  _Bit0_P0_Dir_Up{0}  =  1
+.L079 ;  _Bit0_P0_Dir_Up{0}  =  1
 
 	LDA _Bit0_P0_Dir_Up
 	ORA #1
@@ -2754,15 +2784,15 @@ pflabel0
 .
  ; 
 
-.L076 ;  if player0y  <=  _P_Edge_Top then goto __Skip_Joy0_Up
+.L080 ;  if player0y  <=  _P_Edge_Top then goto __Skip_Joy0_Up
 
 	LDA #_P_Edge_Top
 	CMP player0y
-     BCC .skipL076
-.condpart6
+     BCC .skipL080
+.condpart8
  jmp .__Skip_Joy0_Up
 
-.skipL076
+.skipL080
 .
  ; 
 
@@ -2775,7 +2805,7 @@ pflabel0
 .
  ; 
 
-.L077 ;  temp5  =   ( player0x - 10 )  / 4
+.L081 ;  temp5  =   ( player0x - 10 )  / 4
 
 ; complex statement detected
 	LDA player0x
@@ -2787,7 +2817,7 @@ pflabel0
 .
  ; 
 
-.L078 ;  temp6  =   ( player0y - 9 )  / 8
+.L082 ;  temp6  =   ( player0y - 9 )  / 8
 
 ; complex statement detected
 	LDA player0y
@@ -2800,25 +2830,25 @@ pflabel0
 .
  ; 
 
-.L079 ;  if temp5  <  34 then if pfread ( temp5 , temp6 )  then goto __Skip_Joy0_Up
+.L083 ;  if temp5  <  34 then if pfread ( temp5 , temp6 )  then goto __Skip_Joy0_Up
 
 	LDA temp5
 	CMP #34
-     BCS .skipL079
-.condpart7
+     BCS .skipL083
+.condpart9
 	LDA temp5
 	LDY temp6
  jsr pfread
-	BNE .skip7then
-.condpart8
+	BNE .skip9then
+.condpart10
  jmp .__Skip_Joy0_Up
 
-.skip7then
-.skipL079
+.skip9then
+.skipL083
 .
  ; 
 
-.L080 ;  temp4  =   ( player0x - 17 )  / 4
+.L084 ;  temp4  =   ( player0x - 17 )  / 4
 
 ; complex statement detected
 	LDA player0x
@@ -2830,25 +2860,25 @@ pflabel0
 .
  ; 
 
-.L081 ;  if temp4  <  34 then if pfread ( temp4 , temp6 )  then goto __Skip_Joy0_Up
+.L085 ;  if temp4  <  34 then if pfread ( temp4 , temp6 )  then goto __Skip_Joy0_Up
 
 	LDA temp4
 	CMP #34
-     BCS .skipL081
-.condpart9
+     BCS .skipL085
+.condpart11
 	LDA temp4
 	LDY temp6
  jsr pfread
-	BNE .skip9then
-.condpart10
+	BNE .skip11then
+.condpart12
  jmp .__Skip_Joy0_Up
 
-.skip9then
-.skipL081
+.skip11then
+.skipL085
 .
  ; 
 
-.L082 ;  temp3  =  temp5  -  1
+.L086 ;  temp3  =  temp5  -  1
 
 	LDA temp5
 	SEC
@@ -2857,21 +2887,21 @@ pflabel0
 .
  ; 
 
-.L083 ;  if temp3  <  34 then if pfread ( temp3 , temp6 )  then goto __Skip_Joy0_Up
+.L087 ;  if temp3  <  34 then if pfread ( temp3 , temp6 )  then goto __Skip_Joy0_Up
 
 	LDA temp3
 	CMP #34
-     BCS .skipL083
-.condpart11
+     BCS .skipL087
+.condpart13
 	LDA temp3
 	LDY temp6
  jsr pfread
-	BNE .skip11then
-.condpart12
+	BNE .skip13then
+.condpart14
  jmp .__Skip_Joy0_Up
 
-.skip11then
-.skipL083
+.skip13then
+.skipL087
 .
  ; 
 
@@ -2884,7 +2914,7 @@ pflabel0
 .
  ; 
 
-.L084 ;  player0y  =  player0y  -  1
+.L088 ;  player0y  =  player0y  -  1
 
 	DEC player0y
 .
@@ -2923,15 +2953,15 @@ pflabel0
 .
  ; 
 
-.L085 ;  if !joy0down then goto __Skip_Joy0_Down
+.L089 ;  if !joy0down then goto __Skip_Joy0_Down
 
  lda #$20
  bit SWCHA
-	BEQ .skipL085
-.condpart13
+	BEQ .skipL089
+.condpart15
  jmp .__Skip_Joy0_Down
 
-.skipL085
+.skipL089
 .
  ; 
 
@@ -2944,7 +2974,7 @@ pflabel0
 .
  ; 
 
-.L086 ;  _Bit1_P0_Dir_Down{1}  =  1
+.L090 ;  _Bit1_P0_Dir_Down{1}  =  1
 
 	LDA _Bit1_P0_Dir_Down
 	ORA #2
@@ -2961,15 +2991,15 @@ pflabel0
 .
  ; 
 
-.L087 ;  if player0y  >=  _P_Edge_Bottom then goto __Skip_Joy0_Down
+.L091 ;  if player0y  >=  _P_Edge_Bottom then goto __Skip_Joy0_Down
 
 	LDA player0y
 	CMP #_P_Edge_Bottom
-     BCC .skipL087
-.condpart14
+     BCC .skipL091
+.condpart16
  jmp .__Skip_Joy0_Down
 
-.skipL087
+.skipL091
 .
  ; 
 
@@ -2982,7 +3012,7 @@ pflabel0
 .
  ; 
 
-.L088 ;  temp5  =   ( player0x - 10 )  / 4
+.L092 ;  temp5  =   ( player0x - 10 )  / 4
 
 ; complex statement detected
 	LDA player0x
@@ -2994,7 +3024,7 @@ pflabel0
 .
  ; 
 
-.L089 ;  temp6  =   ( player0y )  / 8
+.L093 ;  temp6  =   ( player0y )  / 8
 
 ; complex statement detected
 	LDA player0y
@@ -3005,25 +3035,25 @@ pflabel0
 .
  ; 
 
-.L090 ;  if temp5  <  34 then if pfread ( temp5 , temp6 )  then goto __Skip_Joy0_Down
+.L094 ;  if temp5  <  34 then if pfread ( temp5 , temp6 )  then goto __Skip_Joy0_Down
 
 	LDA temp5
 	CMP #34
-     BCS .skipL090
-.condpart15
+     BCS .skipL094
+.condpart17
 	LDA temp5
 	LDY temp6
  jsr pfread
-	BNE .skip15then
-.condpart16
+	BNE .skip17then
+.condpart18
  jmp .__Skip_Joy0_Down
 
-.skip15then
-.skipL090
+.skip17then
+.skipL094
 .
  ; 
 
-.L091 ;  temp4  =   ( player0x - 17 )  / 4
+.L095 ;  temp4  =   ( player0x - 17 )  / 4
 
 ; complex statement detected
 	LDA player0x
@@ -3035,25 +3065,25 @@ pflabel0
 .
  ; 
 
-.L092 ;  if temp4  <  34 then if pfread ( temp4 , temp6 )  then goto __Skip_Joy0_Down
+.L096 ;  if temp4  <  34 then if pfread ( temp4 , temp6 )  then goto __Skip_Joy0_Down
 
 	LDA temp4
 	CMP #34
-     BCS .skipL092
-.condpart17
+     BCS .skipL096
+.condpart19
 	LDA temp4
 	LDY temp6
  jsr pfread
-	BNE .skip17then
-.condpart18
+	BNE .skip19then
+.condpart20
  jmp .__Skip_Joy0_Down
 
-.skip17then
-.skipL092
+.skip19then
+.skipL096
 .
  ; 
 
-.L093 ;  temp3  =  temp5  -  1
+.L097 ;  temp3  =  temp5  -  1
 
 	LDA temp5
 	SEC
@@ -3062,21 +3092,21 @@ pflabel0
 .
  ; 
 
-.L094 ;  if temp3  <  34 then if pfread ( temp3 , temp6 )  then goto __Skip_Joy0_Down
+.L098 ;  if temp3  <  34 then if pfread ( temp3 , temp6 )  then goto __Skip_Joy0_Down
 
 	LDA temp3
 	CMP #34
-     BCS .skipL094
-.condpart19
+     BCS .skipL098
+.condpart21
 	LDA temp3
 	LDY temp6
  jsr pfread
-	BNE .skip19then
-.condpart20
+	BNE .skip21then
+.condpart22
  jmp .__Skip_Joy0_Down
 
-.skip19then
-.skipL094
+.skip21then
+.skipL098
 .
  ; 
 
@@ -3089,7 +3119,7 @@ pflabel0
 .
  ; 
 
-.L095 ;  player0y  =  player0y  +  1
+.L099 ;  player0y  =  player0y  +  1
 
 	INC player0y
 .
@@ -3128,14 +3158,14 @@ pflabel0
 .
  ; 
 
-.L096 ;  if !joy0left then goto __Skip_Joy0_Left
+.L0100 ;  if !joy0left then goto __Skip_Joy0_Left
 
  bit SWCHA
-	BVC .skipL096
-.condpart21
+	BVC .skipL0100
+.condpart23
  jmp .__Skip_Joy0_Left
 
-.skipL096
+.skipL0100
 .
  ; 
 
@@ -3148,7 +3178,7 @@ pflabel0
 .
  ; 
 
-.L097 ;  _Bit2_P0_Dir_Left{2}  =  1
+.L0101 ;  _Bit2_P0_Dir_Left{2}  =  1
 
 	LDA _Bit2_P0_Dir_Left
 	ORA #4
@@ -3165,15 +3195,15 @@ pflabel0
 .
  ; 
 
-.L098 ;  if player0x  <=  _P_Edge_Left then goto __Skip_Joy0_Left
+.L0102 ;  if player0x  <=  _P_Edge_Left then goto __Skip_Joy0_Left
 
 	LDA #_P_Edge_Left
 	CMP player0x
-     BCC .skipL098
-.condpart22
+     BCC .skipL0102
+.condpart24
  jmp .__Skip_Joy0_Left
 
-.skipL098
+.skipL0102
 .
  ; 
 
@@ -3186,7 +3216,7 @@ pflabel0
 .
  ; 
 
-.L099 ;  temp5  =   ( player0y - 1 )  / 8
+.L0103 ;  temp5  =   ( player0y - 1 )  / 8
 
 ; complex statement detected
 	LDA player0y
@@ -3199,7 +3229,7 @@ pflabel0
 .
  ; 
 
-.L0100 ;  temp6  =   ( player0x - 18 )  / 4
+.L0104 ;  temp6  =   ( player0x - 18 )  / 4
 
 ; complex statement detected
 	LDA player0x
@@ -3211,25 +3241,25 @@ pflabel0
 .
  ; 
 
-.L0101 ;  if temp6  <  34 then if pfread ( temp6 , temp5 )  then goto __Skip_Joy0_Left
+.L0105 ;  if temp6  <  34 then if pfread ( temp6 , temp5 )  then goto __Skip_Joy0_Left
 
 	LDA temp6
 	CMP #34
-     BCS .skipL0101
-.condpart23
+     BCS .skipL0105
+.condpart25
 	LDA temp6
 	LDY temp5
  jsr pfread
-	BNE .skip23then
-.condpart24
+	BNE .skip25then
+.condpart26
  jmp .__Skip_Joy0_Left
 
-.skip23then
-.skipL0101
+.skip25then
+.skipL0105
 .
  ; 
 
-.L0102 ;  temp3  =   ( player0y - 8 )  / 8
+.L0106 ;  temp3  =   ( player0y - 8 )  / 8
 
 ; complex statement detected
 	LDA player0y
@@ -3242,21 +3272,21 @@ pflabel0
 .
  ; 
 
-.L0103 ;  if temp6  <  34 then if pfread ( temp6 , temp3 )  then goto __Skip_Joy0_Left
+.L0107 ;  if temp6  <  34 then if pfread ( temp6 , temp3 )  then goto __Skip_Joy0_Left
 
 	LDA temp6
 	CMP #34
-     BCS .skipL0103
-.condpart25
+     BCS .skipL0107
+.condpart27
 	LDA temp6
 	LDY temp3
  jsr pfread
-	BNE .skip25then
-.condpart26
+	BNE .skip27then
+.condpart28
  jmp .__Skip_Joy0_Left
 
-.skip25then
-.skipL0103
+.skip27then
+.skipL0107
 .
  ; 
 
@@ -3269,7 +3299,7 @@ pflabel0
 .
  ; 
 
-.L0104 ;  player0x  =  player0x  -  1
+.L0108 ;  player0x  =  player0x  -  1
 
 	DEC player0x
 .
@@ -3308,14 +3338,14 @@ pflabel0
 .
  ; 
 
-.L0105 ;  if !joy0right then goto __Skip_Joy0_Right
+.L0109 ;  if !joy0right then goto __Skip_Joy0_Right
 
  bit SWCHA
-	BPL .skipL0105
-.condpart27
+	BPL .skipL0109
+.condpart29
  jmp .__Skip_Joy0_Right
 
-.skipL0105
+.skipL0109
 .
  ; 
 
@@ -3328,7 +3358,7 @@ pflabel0
 .
  ; 
 
-.L0106 ;  _Bit3_P0_Dir_Right{3}  =  1
+.L0110 ;  _Bit3_P0_Dir_Right{3}  =  1
 
 	LDA _Bit3_P0_Dir_Right
 	ORA #8
@@ -3345,15 +3375,15 @@ pflabel0
 .
  ; 
 
-.L0107 ;  if player0x  >=  _P_Edge_Right then goto __Skip_Joy0_Right
+.L0111 ;  if player0x  >=  _P_Edge_Right then goto __Skip_Joy0_Right
 
 	LDA player0x
 	CMP #_P_Edge_Right
-     BCC .skipL0107
-.condpart28
+     BCC .skipL0111
+.condpart30
  jmp .__Skip_Joy0_Right
 
-.skipL0107
+.skipL0111
 .
  ; 
 
@@ -3366,7 +3396,7 @@ pflabel0
 .
  ; 
 
-.L0108 ;  temp5  =   ( player0y - 1 )  / 8
+.L0112 ;  temp5  =   ( player0y - 1 )  / 8
 
 ; complex statement detected
 	LDA player0y
@@ -3379,7 +3409,7 @@ pflabel0
 .
  ; 
 
-.L0109 ;  temp6  =   ( player0x - 9 )  / 4
+.L0113 ;  temp6  =   ( player0x - 9 )  / 4
 
 ; complex statement detected
 	LDA player0x
@@ -3391,25 +3421,25 @@ pflabel0
 .
  ; 
 
-.L0110 ;  if temp6  <  34 then if pfread ( temp6 , temp5 )  then goto __Skip_Joy0_Right
+.L0114 ;  if temp6  <  34 then if pfread ( temp6 , temp5 )  then goto __Skip_Joy0_Right
 
 	LDA temp6
 	CMP #34
-     BCS .skipL0110
-.condpart29
+     BCS .skipL0114
+.condpart31
 	LDA temp6
 	LDY temp5
  jsr pfread
-	BNE .skip29then
-.condpart30
+	BNE .skip31then
+.condpart32
  jmp .__Skip_Joy0_Right
 
-.skip29then
-.skipL0110
+.skip31then
+.skipL0114
 .
  ; 
 
-.L0111 ;  temp3  =   ( player0y - 8 )  / 8
+.L0115 ;  temp3  =   ( player0y - 8 )  / 8
 
 ; complex statement detected
 	LDA player0y
@@ -3422,21 +3452,21 @@ pflabel0
 .
  ; 
 
-.L0112 ;  if temp6  <  34 then if pfread ( temp6 , temp3 )  then goto __Skip_Joy0_Right
+.L0116 ;  if temp6  <  34 then if pfread ( temp6 , temp3 )  then goto __Skip_Joy0_Right
 
 	LDA temp6
 	CMP #34
-     BCS .skipL0112
-.condpart31
+     BCS .skipL0116
+.condpart33
 	LDA temp6
 	LDY temp3
  jsr pfread
-	BNE .skip31then
-.condpart32
+	BNE .skip33then
+.condpart34
  jmp .__Skip_Joy0_Right
 
-.skip31then
-.skipL0112
+.skip33then
+.skipL0116
 .
  ; 
 
@@ -3449,7 +3479,7 @@ pflabel0
 .
  ; 
 
-.L0113 ;  player0x  =  player0x  +  1
+.L0117 ;  player0x  =  player0x  +  1
 
 	INC player0x
 .
@@ -3473,13 +3503,13 @@ pflabel0
 .
  ; 
 
-.L0114 ;  temp1  =  player0x  +  8
+.L0118 ;  temp1  =  player0x  +  8
 
 	LDA player0x
 	CLC
 	ADC #8
 	STA temp1
-.L0115 ;  temp2  =  player0y  +  8
+.L0119 ;  temp2  =  player0y  +  8
 
 	LDA player0y
 	CLC
@@ -3488,13 +3518,13 @@ pflabel0
 .
  ; 
 
-.L0116 ;  temp3  =  player1x  +  4
+.L0120 ;  temp3  =  player1x  +  4
 
 	LDA player1x
 	CLC
 	ADC #4
 	STA temp3
-.L0117 ;  temp4  =  player1y  +  4
+.L0121 ;  temp4  =  player1y  +  4
 
 	LDA player1y
 	CLC
@@ -3503,29 +3533,29 @@ pflabel0
 .
  ; 
 
-.L0118 ;  temp5  =  _Minotaur_Awareness_Size
+.L0122 ;  temp5  =  _Minotaur_Awareness_Size
 
 	LDA #_Minotaur_Awareness_Size
 	STA temp5
 .
  ; 
 
-.L0119 ;  if _Frame_Count  &  1 then goto __Skip_AI_Right
+.L0123 ;  if _Frame_Count  &  _Chase_Speed then goto __Skip_AI_Right
 
 	LDA _Frame_Count
-	AND #1
-     BEQ .skipL0119
-.condpart33
+	AND _Chase_Speed
+     BEQ .skipL0123
+.condpart35
  jmp .__Skip_AI_Right
 
-.skipL0119
+.skipL0123
 .
  ; 
 
 .
  ; 
 
-.L0120 ;  if player0y  >=  temp4  +  temp5 then goto __Skip_AI_Right
+.L0124 ;  if player0y  >=  temp4  +  temp5 then goto __Skip_AI_Right
 
 ; complex condition detected
 	LDA temp4
@@ -3536,62 +3566,8 @@ pflabel0
   PLA
 	LDA player0y
 	CMP  1,x
-     BCC .skipL0120
-.condpart34
- jmp .__Skip_AI_Right
-
-.skipL0120
-.
- ; 
-
-.
- ; 
-
-.L0121 ;  if temp4  <  temp5 then temp4  =  temp5
-
-	LDA temp4
-	CMP temp5
-     BCS .skipL0121
-.condpart35
-	LDA temp5
-	STA temp4
-.skipL0121
-.L0122 ;  if temp2  <=  temp4  -  temp5 then goto __Skip_AI_Right
-
-; complex condition detected
-	LDA temp4
-	SEC
-	SBC temp5
-	CMP temp2
-     BCC .skipL0122
-.condpart36
- jmp .__Skip_AI_Right
-
-.skipL0122
-.
- ; 
-
-.
- ; 
-
-.L0123 ;  if temp3  <  temp5 then temp3  =  temp5
-
-	LDA temp3
-	CMP temp5
-     BCS .skipL0123
-.condpart37
-	LDA temp5
-	STA temp3
-.skipL0123
-.L0124 ;  if temp1  <=  temp3  -  temp5 then goto __Skip_AI_Right
-
-; complex condition detected
-	LDA temp3
-	SEC
-	SBC temp5
-	CMP temp1
      BCC .skipL0124
-.condpart38
+.condpart36
  jmp .__Skip_AI_Right
 
 .skipL0124
@@ -3601,7 +3577,61 @@ pflabel0
 .
  ; 
 
-.L0125 ;  if player0x  >=  temp3  +  temp5 then goto __Skip_AI_Right
+.L0125 ;  if temp4  <  temp5 then temp4  =  temp5
+
+	LDA temp4
+	CMP temp5
+     BCS .skipL0125
+.condpart37
+	LDA temp5
+	STA temp4
+.skipL0125
+.L0126 ;  if temp2  <=  temp4  -  temp5 then goto __Skip_AI_Right
+
+; complex condition detected
+	LDA temp4
+	SEC
+	SBC temp5
+	CMP temp2
+     BCC .skipL0126
+.condpart38
+ jmp .__Skip_AI_Right
+
+.skipL0126
+.
+ ; 
+
+.
+ ; 
+
+.L0127 ;  if temp3  <  temp5 then temp3  =  temp5
+
+	LDA temp3
+	CMP temp5
+     BCS .skipL0127
+.condpart39
+	LDA temp5
+	STA temp3
+.skipL0127
+.L0128 ;  if temp1  <=  temp3  -  temp5 then goto __Skip_AI_Right
+
+; complex condition detected
+	LDA temp3
+	SEC
+	SBC temp5
+	CMP temp1
+     BCC .skipL0128
+.condpart40
+ jmp .__Skip_AI_Right
+
+.skipL0128
+.
+ ; 
+
+.
+ ; 
+
+.L0129 ;  if player0x  >=  temp3  +  temp5 then goto __Skip_AI_Right
 
 ; complex condition detected
 	LDA temp3
@@ -3612,11 +3642,11 @@ pflabel0
   PLA
 	LDA player0x
 	CMP  1,x
-     BCC .skipL0125
-.condpart39
+     BCC .skipL0129
+.condpart41
  jmp .__Skip_AI_Right
 
-.skipL0125
+.skipL0129
 .
  ; 
 
@@ -3650,15 +3680,15 @@ pflabel0
 .
  ; 
 
-.L0126 ;  if player1y  <=  player0y then goto __Skip_AI_Up
+.L0130 ;  if player1y  <=  player0y then goto __Skip_AI_Up
 
 	LDA player0y
 	CMP player1y
-     BCC .skipL0126
-.condpart40
+     BCC .skipL0130
+.condpart42
  jmp .__Skip_AI_Up
 
-.skipL0126
+.skipL0130
 .
  ; 
 
@@ -3671,7 +3701,7 @@ pflabel0
 .
  ; 
 
-.L0127 ;  _Bit0_P1_Dir_Up{0}  =  1
+.L0131 ;  _Bit0_P1_Dir_Up{0}  =  1
 
 	LDA _Bit0_P1_Dir_Up
 	ORA #1
@@ -3688,15 +3718,15 @@ pflabel0
 .
  ; 
 
-.L0128 ;  if player1y  <=  _P_Edge_Top then goto __Skip_AI_Up
+.L0132 ;  if player1y  <=  _P_Edge_Top then goto __Skip_AI_Up
 
 	LDA #_P_Edge_Top
 	CMP player1y
-     BCC .skipL0128
-.condpart41
+     BCC .skipL0132
+.condpart43
  jmp .__Skip_AI_Up
 
-.skipL0128
+.skipL0132
 .
  ; 
 
@@ -3709,7 +3739,7 @@ pflabel0
 .
  ; 
 
-.L0129 ;  temp5  =   ( player1x - 10 )  / 4
+.L0133 ;  temp5  =   ( player1x - 10 )  / 4
 
 ; complex statement detected
 	LDA player1x
@@ -3721,7 +3751,7 @@ pflabel0
 .
  ; 
 
-.L0130 ;  temp6  =   ( player1y - 9 )  / 8
+.L0134 ;  temp6  =   ( player1y - 9 )  / 8
 
 ; complex statement detected
 	LDA player1y
@@ -3734,25 +3764,25 @@ pflabel0
 .
  ; 
 
-.L0131 ;  if temp5  <  34 then if pfread ( temp5 , temp6 )  then goto __Skip_AI_Up
+.L0135 ;  if temp5  <  34 then if pfread ( temp5 , temp6 )  then goto __Skip_AI_Up
 
 	LDA temp5
 	CMP #34
-     BCS .skipL0131
-.condpart42
+     BCS .skipL0135
+.condpart44
 	LDA temp5
 	LDY temp6
  jsr pfread
-	BNE .skip42then
-.condpart43
+	BNE .skip44then
+.condpart45
  jmp .__Skip_AI_Up
 
-.skip42then
-.skipL0131
+.skip44then
+.skipL0135
 .
  ; 
 
-.L0132 ;  temp4  =   ( player1x - 17 )  / 4
+.L0136 ;  temp4  =   ( player1x - 17 )  / 4
 
 ; complex statement detected
 	LDA player1x
@@ -3764,25 +3794,25 @@ pflabel0
 .
  ; 
 
-.L0133 ;  if temp4  <  34 then if pfread ( temp4 , temp6 )  then goto __Skip_AI_Up
+.L0137 ;  if temp4  <  34 then if pfread ( temp4 , temp6 )  then goto __Skip_AI_Up
 
 	LDA temp4
 	CMP #34
-     BCS .skipL0133
-.condpart44
+     BCS .skipL0137
+.condpart46
 	LDA temp4
 	LDY temp6
  jsr pfread
-	BNE .skip44then
-.condpart45
+	BNE .skip46then
+.condpart47
  jmp .__Skip_AI_Up
 
-.skip44then
-.skipL0133
+.skip46then
+.skipL0137
 .
  ; 
 
-.L0134 ;  temp3  =  temp5  -  1
+.L0138 ;  temp3  =  temp5  -  1
 
 	LDA temp5
 	SEC
@@ -3791,21 +3821,21 @@ pflabel0
 .
  ; 
 
-.L0135 ;  if temp3  <  34 then if pfread ( temp3 , temp6 )  then goto __Skip_AI_Up
+.L0139 ;  if temp3  <  34 then if pfread ( temp3 , temp6 )  then goto __Skip_AI_Up
 
 	LDA temp3
 	CMP #34
-     BCS .skipL0135
-.condpart46
+     BCS .skipL0139
+.condpart48
 	LDA temp3
 	LDY temp6
  jsr pfread
-	BNE .skip46then
-.condpart47
+	BNE .skip48then
+.condpart49
  jmp .__Skip_AI_Up
 
-.skip46then
-.skipL0135
+.skip48then
+.skipL0139
 .
  ; 
 
@@ -3818,7 +3848,7 @@ pflabel0
 .
  ; 
 
-.L0136 ;  player1y  =  player1y  -  1
+.L0140 ;  player1y  =  player1y  -  1
 
 	DEC player1y
 .
@@ -3857,15 +3887,15 @@ pflabel0
 .
  ; 
 
-.L0137 ;  if player1y  >=  player0y then goto __Skip_AI_Down
+.L0141 ;  if player1y  >=  player0y then goto __Skip_AI_Down
 
 	LDA player1y
 	CMP player0y
-     BCC .skipL0137
-.condpart48
+     BCC .skipL0141
+.condpart50
  jmp .__Skip_AI_Down
 
-.skipL0137
+.skipL0141
 .
  ; 
 
@@ -3878,7 +3908,7 @@ pflabel0
 .
  ; 
 
-.L0138 ;  _Bit1_P1_Dir_Down{1}  =  1
+.L0142 ;  _Bit1_P1_Dir_Down{1}  =  1
 
 	LDA _Bit1_P1_Dir_Down
 	ORA #2
@@ -3895,15 +3925,15 @@ pflabel0
 .
  ; 
 
-.L0139 ;  if player1y  >=  _P_Edge_Bottom then goto __Skip_AI_Down
+.L0143 ;  if player1y  >=  _P_Edge_Bottom then goto __Skip_AI_Down
 
 	LDA player1y
 	CMP #_P_Edge_Bottom
-     BCC .skipL0139
-.condpart49
+     BCC .skipL0143
+.condpart51
  jmp .__Skip_AI_Down
 
-.skipL0139
+.skipL0143
 .
  ; 
 
@@ -3916,7 +3946,7 @@ pflabel0
 .
  ; 
 
-.L0140 ;  temp5  =   ( player1x - 10 )  / 4
+.L0144 ;  temp5  =   ( player1x - 10 )  / 4
 
 ; complex statement detected
 	LDA player1x
@@ -3928,7 +3958,7 @@ pflabel0
 .
  ; 
 
-.L0141 ;  temp6  =   ( player1y )  / 8
+.L0145 ;  temp6  =   ( player1y )  / 8
 
 ; complex statement detected
 	LDA player1y
@@ -3939,25 +3969,25 @@ pflabel0
 .
  ; 
 
-.L0142 ;  if temp5  <  34 then if pfread ( temp5 , temp6 )  then goto __Skip_AI_Down
+.L0146 ;  if temp5  <  34 then if pfread ( temp5 , temp6 )  then goto __Skip_AI_Down
 
 	LDA temp5
 	CMP #34
-     BCS .skipL0142
-.condpart50
+     BCS .skipL0146
+.condpart52
 	LDA temp5
 	LDY temp6
  jsr pfread
-	BNE .skip50then
-.condpart51
+	BNE .skip52then
+.condpart53
  jmp .__Skip_AI_Down
 
-.skip50then
-.skipL0142
+.skip52then
+.skipL0146
 .
  ; 
 
-.L0143 ;  temp4  =   ( player1x - 17 )  / 4
+.L0147 ;  temp4  =   ( player1x - 17 )  / 4
 
 ; complex statement detected
 	LDA player1x
@@ -3969,25 +3999,25 @@ pflabel0
 .
  ; 
 
-.L0144 ;  if temp4  <  34 then if pfread ( temp4 , temp6 )  then goto __Skip_AI_Down
+.L0148 ;  if temp4  <  34 then if pfread ( temp4 , temp6 )  then goto __Skip_AI_Down
 
 	LDA temp4
 	CMP #34
-     BCS .skipL0144
-.condpart52
+     BCS .skipL0148
+.condpart54
 	LDA temp4
 	LDY temp6
  jsr pfread
-	BNE .skip52then
-.condpart53
+	BNE .skip54then
+.condpart55
  jmp .__Skip_AI_Down
 
-.skip52then
-.skipL0144
+.skip54then
+.skipL0148
 .
  ; 
 
-.L0145 ;  temp3  =  temp5  -  1
+.L0149 ;  temp3  =  temp5  -  1
 
 	LDA temp5
 	SEC
@@ -3996,21 +4026,21 @@ pflabel0
 .
  ; 
 
-.L0146 ;  if temp3  <  34 then if pfread ( temp3 , temp6 )  then goto __Skip_AI_Down
+.L0150 ;  if temp3  <  34 then if pfread ( temp3 , temp6 )  then goto __Skip_AI_Down
 
 	LDA temp3
 	CMP #34
-     BCS .skipL0146
-.condpart54
+     BCS .skipL0150
+.condpart56
 	LDA temp3
 	LDY temp6
  jsr pfread
-	BNE .skip54then
-.condpart55
+	BNE .skip56then
+.condpart57
  jmp .__Skip_AI_Down
 
-.skip54then
-.skipL0146
+.skip56then
+.skipL0150
 .
  ; 
 
@@ -4023,7 +4053,7 @@ pflabel0
 .
  ; 
 
-.L0147 ;  player1y  =  player1y  +  1
+.L0151 ;  player1y  =  player1y  +  1
 
 	INC player1y
 .
@@ -4059,15 +4089,15 @@ pflabel0
 .
  ; 
 
-.L0148 ;  if player1x  <=  player0x then goto __Skip_AI_Left
+.L0152 ;  if player1x  <=  player0x then goto __Skip_AI_Left
 
 	LDA player0x
 	CMP player1x
-     BCC .skipL0148
-.condpart56
+     BCC .skipL0152
+.condpart58
  jmp .__Skip_AI_Left
 
-.skipL0148
+.skipL0152
 .
  ; 
 
@@ -4080,7 +4110,7 @@ pflabel0
 .
  ; 
 
-.L0149 ;  _Bit2_P1_Dir_Left{2}  =  1
+.L0153 ;  _Bit2_P1_Dir_Left{2}  =  1
 
 	LDA _Bit2_P1_Dir_Left
 	ORA #4
@@ -4097,15 +4127,15 @@ pflabel0
 .
  ; 
 
-.L0150 ;  if player1x  <=  _P_Edge_Left then goto __Skip_AI_Left
+.L0154 ;  if player1x  <=  _P_Edge_Left then goto __Skip_AI_Left
 
 	LDA #_P_Edge_Left
 	CMP player1x
-     BCC .skipL0150
-.condpart57
+     BCC .skipL0154
+.condpart59
  jmp .__Skip_AI_Left
 
-.skipL0150
+.skipL0154
 .
  ; 
 
@@ -4118,7 +4148,7 @@ pflabel0
 .
  ; 
 
-.L0151 ;  temp5  =   ( player1y - 1 )  / 8
+.L0155 ;  temp5  =   ( player1y - 1 )  / 8
 
 ; complex statement detected
 	LDA player1y
@@ -4131,7 +4161,7 @@ pflabel0
 .
  ; 
 
-.L0152 ;  temp6  =   ( player1x - 18 )  / 4
+.L0156 ;  temp6  =   ( player1x - 18 )  / 4
 
 ; complex statement detected
 	LDA player1x
@@ -4143,25 +4173,25 @@ pflabel0
 .
  ; 
 
-.L0153 ;  if temp6  <  34 then if pfread ( temp6 , temp5 )  then goto __Skip_AI_Left
+.L0157 ;  if temp6  <  34 then if pfread ( temp6 , temp5 )  then goto __Skip_AI_Left
 
 	LDA temp6
 	CMP #34
-     BCS .skipL0153
-.condpart58
+     BCS .skipL0157
+.condpart60
 	LDA temp6
 	LDY temp5
  jsr pfread
-	BNE .skip58then
-.condpart59
+	BNE .skip60then
+.condpart61
  jmp .__Skip_AI_Left
 
-.skip58then
-.skipL0153
+.skip60then
+.skipL0157
 .
  ; 
 
-.L0154 ;  temp3  =   ( player1y - 8 )  / 8
+.L0158 ;  temp3  =   ( player1y - 8 )  / 8
 
 ; complex statement detected
 	LDA player1y
@@ -4174,21 +4204,21 @@ pflabel0
 .
  ; 
 
-.L0155 ;  if temp6  <  34 then if pfread ( temp6 , temp3 )  then goto __Skip_AI_Left
+.L0159 ;  if temp6  <  34 then if pfread ( temp6 , temp3 )  then goto __Skip_AI_Left
 
 	LDA temp6
 	CMP #34
-     BCS .skipL0155
-.condpart60
+     BCS .skipL0159
+.condpart62
 	LDA temp6
 	LDY temp3
  jsr pfread
-	BNE .skip60then
-.condpart61
+	BNE .skip62then
+.condpart63
  jmp .__Skip_AI_Left
 
-.skip60then
-.skipL0155
+.skip62then
+.skipL0159
 .
  ; 
 
@@ -4201,7 +4231,7 @@ pflabel0
 .
  ; 
 
-.L0156 ;  player1x  =  player1x  -  1
+.L0160 ;  player1x  =  player1x  -  1
 
 	DEC player1x
 .
@@ -4237,15 +4267,15 @@ pflabel0
 .
  ; 
 
-.L0157 ;  if player1x  >=  player0x then goto __Skip_AI_Right
+.L0161 ;  if player1x  >=  player0x then goto __Skip_AI_Right
 
 	LDA player1x
 	CMP player0x
-     BCC .skipL0157
-.condpart62
+     BCC .skipL0161
+.condpart64
  jmp .__Skip_AI_Right
 
-.skipL0157
+.skipL0161
 .
  ; 
 
@@ -4258,7 +4288,7 @@ pflabel0
 .
  ; 
 
-.L0158 ;  _Bit3_P1_Dir_Right{3}  =  1
+.L0162 ;  _Bit3_P1_Dir_Right{3}  =  1
 
 	LDA _Bit3_P1_Dir_Right
 	ORA #8
@@ -4275,15 +4305,15 @@ pflabel0
 .
  ; 
 
-.L0159 ;  if player1x  >=  _P_Edge_Right then goto __Skip_AI_Right
+.L0163 ;  if player1x  >=  _P_Edge_Right then goto __Skip_AI_Right
 
 	LDA player1x
 	CMP #_P_Edge_Right
-     BCC .skipL0159
-.condpart63
+     BCC .skipL0163
+.condpart65
  jmp .__Skip_AI_Right
 
-.skipL0159
+.skipL0163
 .
  ; 
 
@@ -4296,7 +4326,7 @@ pflabel0
 .
  ; 
 
-.L0160 ;  temp5  =   ( player1y - 1 )  / 8
+.L0164 ;  temp5  =   ( player1y - 1 )  / 8
 
 ; complex statement detected
 	LDA player1y
@@ -4309,7 +4339,7 @@ pflabel0
 .
  ; 
 
-.L0161 ;  temp6  =   ( player1x - 9 )  / 4
+.L0165 ;  temp6  =   ( player1x - 9 )  / 4
 
 ; complex statement detected
 	LDA player1x
@@ -4321,25 +4351,25 @@ pflabel0
 .
  ; 
 
-.L0162 ;  if temp6  <  34 then if pfread ( temp6 , temp5 )  then goto __Skip_AI_Right
+.L0166 ;  if temp6  <  34 then if pfread ( temp6 , temp5 )  then goto __Skip_AI_Right
 
 	LDA temp6
 	CMP #34
-     BCS .skipL0162
-.condpart64
+     BCS .skipL0166
+.condpart66
 	LDA temp6
 	LDY temp5
  jsr pfread
-	BNE .skip64then
-.condpart65
+	BNE .skip66then
+.condpart67
  jmp .__Skip_AI_Right
 
-.skip64then
-.skipL0162
+.skip66then
+.skipL0166
 .
  ; 
 
-.L0163 ;  temp3  =   ( player1y - 8 )  / 8
+.L0167 ;  temp3  =   ( player1y - 8 )  / 8
 
 ; complex statement detected
 	LDA player1y
@@ -4352,21 +4382,21 @@ pflabel0
 .
  ; 
 
-.L0164 ;  if temp6  <  34 then if pfread ( temp6 , temp3 )  then goto __Skip_AI_Right
+.L0168 ;  if temp6  <  34 then if pfread ( temp6 , temp3 )  then goto __Skip_AI_Right
 
 	LDA temp6
 	CMP #34
-     BCS .skipL0164
-.condpart66
+     BCS .skipL0168
+.condpart68
 	LDA temp6
 	LDY temp3
  jsr pfread
-	BNE .skip66then
-.condpart67
+	BNE .skip68then
+.condpart69
  jmp .__Skip_AI_Right
 
-.skip66then
-.skipL0164
+.skip68then
+.skipL0168
 .
  ; 
 
@@ -4379,7 +4409,7 @@ pflabel0
 .
  ; 
 
-.L0165 ;  player1x  =  player1x  +  1
+.L0169 ;  player1x  =  player1x  +  1
 
 	INC player1x
 .
@@ -4403,7 +4433,7 @@ pflabel0
 .
  ; 
 
-.L0166 ;  if !collision(missile0,player0) then __Skip_Gem_Collection
+.L0170 ;  if !collision(missile0,player0) then __Skip_Gem_Collection
 
 	bit 	CXM0P
  if ((* - .__Skip_Gem_Collection) < 127) && ((* - .__Skip_Gem_Collection) > -128)
@@ -4413,12 +4443,12 @@ pflabel0
 	jmp .__Skip_Gem_Collection
 .2skip__Skip_Gem_Collection
  endif
-.L0167 ;  _Bit0_Carrying_Gem{0}  =  1
+.L0171 ;  _Bit0_Carrying_Gem{0}  =  1
 
 	LDA _Bit0_Carrying_Gem
 	ORA #1
 	STA _Bit0_Carrying_Gem
-.L0168 ;  missile0x  =  200  :  missile0y  =  200
+.L0172 ;  missile0x  =  200  :  missile0y  =  200
 
 	LDA #200
 	STA missile0x
@@ -4438,7 +4468,7 @@ pflabel0
 .
  ; 
 
-.L0169 ;  if !collision(missile1,player0) then __Skip_Gem_Deposit
+.L0173 ;  if !collision(missile1,player0) then __Skip_Gem_Deposit
 
 	bit 	CXM1P
  if ((* - .__Skip_Gem_Deposit) < 127) && ((* - .__Skip_Gem_Deposit) > -128)
@@ -4448,7 +4478,7 @@ pflabel0
 	jmp .__Skip_Gem_Deposit
 .3skip__Skip_Gem_Deposit
  endif
-.L0170 ;  if !_Bit0_Carrying_Gem{0} then __Skip_Gem_Deposit
+.L0174 ;  if !_Bit0_Carrying_Gem{0} then __Skip_Gem_Deposit
 
 	LDA _Bit0_Carrying_Gem
 	LSR
@@ -4459,12 +4489,12 @@ pflabel0
 	jmp .__Skip_Gem_Deposit
 .4skip__Skip_Gem_Deposit
  endif
-.L0171 ;  _Bit0_Carrying_Gem{0}  =  0
+.L0175 ;  _Bit0_Carrying_Gem{0}  =  0
 
 	LDA _Bit0_Carrying_Gem
 	AND #254
 	STA _Bit0_Carrying_Gem
-.L0172 ;  score  =  score  +  1
+.L0176 ;  score  =  score  +  1
 
 	SED
 	CLC
@@ -4478,7 +4508,7 @@ pflabel0
 	ADC #$00
 	STA score
 	CLD
-.L0173 ;  missile0x  =   ( rand  &  118 )   +  23  :  missile0y  =   ( rand  &  70 )   +  9
+.L0177 ;  missile0x  =   ( rand  &  118 )   +  23  :  missile0y  =   ( rand  &  70 )   +  9
 
 ; complex statement detected
  jsr randomize
@@ -4501,28 +4531,28 @@ pflabel0
 .__Game_Over
  ; __Game_Over
 
-.L0174 ;  if !_Bit1_Game_Over{1} then goto __Skip_Game_Over
+.L0178 ;  if !_Bit1_Game_Over{1} then goto __Skip_Game_Over
 
 	LDA _Bit1_Game_Over
 	AND #2
-	BNE .skipL0174
-.condpart68
+	BNE .skipL0178
+.condpart70
  jmp .__Skip_Game_Over
 
-.skipL0174
-.L0175 ;  COLUPF  =  14
+.skipL0178
+.L0179 ;  COLUPF  =  14
 
 	LDA #14
 	STA COLUPF
-.L0176 ;  scorecolor  =  14
+.L0180 ;  scorecolor  =  14
 
 	LDA #14
 	STA scorecolor
-.L0177 ;  COLUBK  =  $36
+.L0181 ;  COLUBK  =  $36
 
 	LDA #$36
 	STA COLUBK
-.L0178 ;  playfield:
+.L0182 ;  playfield:
 
   ifconst pfres
 	  ldx #(11>pfres)*(pfres*pfwidth-1)+(11<=pfres)*43
@@ -4583,22 +4613,22 @@ pflabel1
 .
  ; 
 
-.L0179 ;  player0x  =  200  :  player0y  =  200
+.L0183 ;  player0x  =  200  :  player0y  =  200
 
 	LDA #200
 	STA player0x
 	STA player0y
-.L0180 ;  player1x  =  200  :  player1y  =  200
+.L0184 ;  player1x  =  200  :  player1y  =  200
 
 	LDA #200
 	STA player1x
 	STA player1y
-.L0181 ;  missile0x  =  200  :  missile0y  =  200
+.L0185 ;  missile0x  =  200  :  missile0y  =  200
 
 	LDA #200
 	STA missile0x
 	STA missile0y
-.L0182 ;  missile1x  =  200  :  missile1y  =  200
+.L0186 ;  missile1x  =  200  :  missile1y  =  200
 
 	LDA #200
 	STA missile1x
@@ -4621,7 +4651,7 @@ pflabel1
 .
  ; 
 
-.L0183 ;  drawscreen
+.L0187 ;  drawscreen
 
  jsr drawscreen
 .
@@ -4669,18 +4699,18 @@ pflabel1
 .
  ; 
 
-.L0184 ;  if !switchreset then _Bit0_Reset_Restrainer{0}  =  0  :  goto __Main_Loop
+.L0188 ;  if !switchreset then _Bit0_Reset_Restrainer{0}  =  0  :  goto __Main_Loop
 
  lda #1
  bit SWCHB
-	BEQ .skipL0184
-.condpart69
+	BEQ .skipL0188
+.condpart71
 	LDA _Bit0_Reset_Restrainer
 	AND #254
 	STA _Bit0_Reset_Restrainer
  jmp .__Main_Loop
 
-.skipL0184
+.skipL0188
 .
  ; 
 
@@ -4696,15 +4726,15 @@ pflabel1
 .
  ; 
 
-.L0185 ;  if _Bit0_Reset_Restrainer{0} then goto __Main_Loop
+.L0189 ;  if _Bit0_Reset_Restrainer{0} then goto __Main_Loop
 
 	LDA _Bit0_Reset_Restrainer
 	LSR
-	BCC .skipL0185
-.condpart70
+	BCC .skipL0189
+.condpart72
  jmp .__Main_Loop
 
-.skipL0185
+.skipL0189
 .
  ; 
 
@@ -4717,7 +4747,7 @@ pflabel1
 .
  ; 
 
-.L0186 ;  goto __Start_Restart
+.L0190 ;  goto __Start_Restart
 
  jmp .__Start_Restart
 
