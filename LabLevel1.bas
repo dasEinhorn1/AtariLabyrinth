@@ -68,33 +68,30 @@
    dim _Bit1_P1_Dir_Down = k
    dim _Bit2_P1_Dir_Left = k
    dim _Bit3_P1_Dir_Right = k
-   dim _Bit4_M1_Dir_Up = k
-   dim _Bit5_M1_Dir_Down = k
-   dim _Bit6_M1_Dir_Left = k
-   dim _Bit7_M1_Dir_Right = k
+   dim _Bit4_P1_Col_Up = k
+   dim _Bit5_P1_Col_Down = k
+   dim _Bit6_P1_Col_Left = k
+   dim _Bit7_P1_Col_Right = k
+
+   dim _Frame_Count = h
 
    ;'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
    ;  Minotaur awareness radius
    ;
-   const _Minotaur_Awareness_Size = 48
+   const _Minotaur_Awareness_Size = 50
 
    ;```````````````````````````````````````````````````````````````
-   ;  Ball direction bits.
+   ;  Gem Stuff
    ;
-   dim _BitOp_Ball_Dir = h
-   dim _Bit0_Ball_Dir_Up = h
-   dim _Bit1_Ball_Dir_Down = h
-   dim _Bit2_Ball_Dir_Left = h
-   dim _Bit3_Ball_Dir_Right = h
-   dim _Bit4_Ball_Hit_UD = h
+   dim _Bit0_Carrying_Gem = x
 
    ;```````````````````````````````````````````````````````````````
    ;  Bits that do various jobs.
    ;
    dim _BitOp_01 = y
    dim _Bit0_Reset_Restrainer = y
-   dim _Bit4_Toggle_Screen = y
-   dim _Bit7_M0_Moving = y
+   dim _Bit1_Toggle_Screen = y
+   dim _Bit2_M0_Moving = y
 
    ;```````````````````````````````````````````````````````````````
    ;  Makes better random numbers.
@@ -189,6 +186,10 @@ __Start_Restart
    ;
    missile0x = 200 : missile0y = 200
 
+   ;***************************************************************
+   ; Set up gem starting position
+   ;
+   ballx = 80 : bally = 79
 
    ;***************************************************************
    ;
@@ -209,38 +210,6 @@ __Start_Restart
    ;  Sets background color.
    ;
    COLUBK = 0
-
-
-   ;***************************************************************
-   ;
-   ;  Makes the ball 2 pixels wide and 2 pixels high.
-   ;
-   CTRLPF = $11 : ballheight = 2
-
-
-   ;***************************************************************
-   ;
-   ;  Sets random starting position of ball.
-   ;
-   ballx = (rand/2) + (rand&15) + (rand/32) + 5 : bally = 9
-
-
-   ;***************************************************************
-   ;
-   ;  Ballx starting direction is random. It will either go left
-   ;  or right.
-   ;
-   _Bit2_Ball_Dir_Left{2} = 1 : _Bit3_Ball_Dir_Right{3} = 0
-
-   temp5 = rand : if temp5 < 128 then _Bit2_Ball_Dir_Left{2} = 0 : _Bit3_Ball_Dir_Right{3} = 1
-
-
-   ;***************************************************************
-   ;
-   ;  Bally starting direction is down.
-   ;
-   _Bit1_Ball_Dir_Down{1} = 1
-
 
    ;***************************************************************
    ;
@@ -274,14 +243,14 @@ __Start_Restart
 end
 
    player0:
-   %00100100
+   %11100111
    %00100100
    %00100100
    %10011001
    %01011010
    %00111100
    %00011000
-   %00011000
+   %11111111
 end
 
    player1:
@@ -295,6 +264,9 @@ end
    %00100100
 end
 
+   dim _sc1 = score ; 100,000s and 10,000s (XX 00 00)
+   dim _sc2 = score+1 ; 1,000s and 100s (00 XX 00)
+   dim _sc3 = score+2 ; 10s and ones (00 00 XX)
 
 
    ;***************************************************************
@@ -305,7 +277,7 @@ end
    ;
 __Main_Loop
 
-
+   _Frame_Count = _Frame_Count + 1
 
    ;***************************************************************
    ;
@@ -313,7 +285,7 @@ __Main_Loop
    ;
    COLUP0 = $9C
    COLUP1 = $C9
-
+   scorecolor = $9C
 
    ;***************************************************************
    ;
@@ -330,8 +302,6 @@ __Main_Loop
    _BitOp_P0_M0_Dir = _BitOp_P0_M0_Dir & %11110000
 
 __Skip_Joystick_Precheck
-
-
 
    ;***************************************************************
    ;
@@ -507,16 +477,29 @@ __Skip_Joy0_Right
    ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
    ;  If the player is within the awareness radius of the Minotaur
    ;
-   temp1 = player0x + 4 ; player0 left side
+   temp1 = player0x + 8 ; player0 right side
    temp2 = player0y + 8 ; player0 bottom
-   temp3 = player1x + 4 ; Minotaur center x
-   temp4 = player1y + 8 ; Minotaur center y
-   temp5 = _Minotaur_Awareness_Size / 2
 
-   if player0x >= (temp3 + temp5) then goto __Skip_AI_Right
-   if temp1 <= (temp3 - temp5) then goto __Skip_AI_Right
-   if player0y >= (temp4 + temp5) then goto __Skip_AI_Right
-   if temp2 <= (temp4 - temp5) then goto __Skip_AI_Right
+   temp3 = player1x + 4 ; Minotaur center x
+   temp4 = player1y + 4 ; Minotaur center y
+
+   temp5 = _Minotaur_Awareness_Size
+
+   if _Frame_Count & 1 then goto __Skip_AI_Right
+
+   ; check player top >= awareness bottom
+   if player0y >= temp4 + temp5 then goto __Skip_AI_Right
+
+   ; check player bottom <= awareness top
+   if temp4 < temp5 then temp4 = temp5
+   if temp2 <= temp4 - temp5 then goto __Skip_AI_Right
+
+   ; check player right <= awareness left
+   if temp3 < temp5 then temp3 = temp5
+   if temp1 <= temp3 - temp5 then goto __Skip_AI_Right
+
+   ; check player left >= awareness right
+   if player0x >= temp3 + temp5 then goto __Skip_AI_Right
 
    ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
    ;  Rush the player1 at player0
@@ -689,6 +672,12 @@ __Skip_AI_Left
 
 __Skip_AI_Right
 
+   if !collision(ball, player0) then __Skip_Gem_Collection
+   _Bit0_Carrying_Gem{0} = 1
+   score = score + 1
+   ballx = (rand & 118) + 23 : bally = (rand & 70) + 9
+__Skip_Gem_Collection
+
 
    ;***************************************************************
    ;
@@ -705,12 +694,12 @@ __Skip_AI_Right
    ;```````````````````````````````````````````````````````````````
    ;  Skips this section if missile0 is moving.
    ;
-   if _Bit7_M0_Moving{7} then goto __Skip_Fire
+   if _Bit2_M0_Moving{7} then goto __Skip_Fire
 
    ;```````````````````````````````````````````````````````````````
    ;  Turns on missile0 movement.
    ;
-   _Bit7_M0_Moving{7} = 1
+   _Bit2_M0_Moving{7} = 1
 
    ;```````````````````````````````````````````````````````````````
    ;  Takes a 'snapshot' of player0 direction so missile0 will
@@ -731,8 +720,6 @@ __Skip_AI_Right
 
 __Skip_Fire
 
-
-
    ;***************************************************************
    ;
    ;  Missile0 movement check.
@@ -740,7 +727,7 @@ __Skip_Fire
    ;```````````````````````````````````````````````````````````````
    ;  Skips this section if missile0 isn't moving.
    ;
-   if !_Bit7_M0_Moving{7} then goto __Skip_Missile
+   if !_Bit2_M0_Moving{7} then goto __Skip_Missile
 
    ;```````````````````````````````````````````````````````````````
    ;  Moves missile0 in the appropriate direction.
@@ -768,7 +755,7 @@ __Skip_to_Clear_Missile
    ;```````````````````````````````````````````````````````````````
    ;  Clears missile0 moving bit and moves missile0 off the screen.
    ;
-   _Bit7_M0_Moving{7} = 0 : missile0x = 200 : missile0y = 200
+   _Bit2_M0_Moving{7} = 0 : missile0x = 200 : missile0y = 200
 
 __Skip_Missile
 
