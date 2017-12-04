@@ -259,14 +259,14 @@ __Start_Restart
 end
 
    player0:
-   %11100111
+   %00110110
    %00100100
    %00100100
-   %10011001
+   %00011000
    %01011010
    %00111100
    %00011000
-   %11111111
+   %00011000
 end
 
    player1:
@@ -369,13 +369,13 @@ __Skip_Joystick_Precheck
    ;```````````````````````````````````````````````````````````````
    ;  Stops movement if a playfield pixel is in the way.
    ;
-   temp5 = (player0x-10)/4
+   temp5 = (player0x-11)/4
 
    temp6 = (player0y-9)/8
 
    if temp5 < 34 then if pfread(temp5,temp6) then goto __Skip_Joy0_Up
 
-   temp4 = (player0x-17)/4
+   temp4 = (player0x-16)/4
 
    if temp4 < 34 then if pfread(temp4,temp6) then goto __Skip_Joy0_Up
 
@@ -414,13 +414,13 @@ __Skip_Joy0_Up
    ;```````````````````````````````````````````````````````````````
    ;  Stops movement if a playfield pixel is in the way.
    ;
-   temp5 = (player0x-10)/4
+   temp5 = (player0x-11)/4
 
    temp6 = (player0y)/8
 
    if temp5 < 34 then if pfread(temp5,temp6) then goto __Skip_Joy0_Down
 
-   temp4 = (player0x-17)/4
+   temp4 = (player0x-16)/4
 
    if temp4 < 34 then if pfread(temp4,temp6) then goto __Skip_Joy0_Down
 
@@ -461,7 +461,7 @@ __Skip_Joy0_Down
    ;
    temp5 = (player0y-1)/8
 
-   temp6 = (player0x-18)/4
+   temp6 = (player0x-17)/4
 
    if temp6 < 34 then if pfread(temp6,temp5) then goto __Skip_Joy0_Left
 
@@ -502,7 +502,7 @@ __Skip_Joy0_Left
    ;
    temp5 = (player0y-1)/8
 
-   temp6 = (player0x-9)/4
+   temp6 = (player0x-10)/4
 
    if temp6 < 34 then if pfread(temp6,temp5) then goto __Skip_Joy0_Right
 
@@ -530,6 +530,8 @@ __Skip_Joy0_Right
    temp5 = _Minotaur_Awareness_Size
 
    if _Frame_Count & _Chase_Speed then goto __Skip_AI_Right
+
+   goto __Skip_AI_Right
 
    ; check player top >= awareness bottom
    if player0y >= temp4 + temp5 then goto __Skip_AI_Right
