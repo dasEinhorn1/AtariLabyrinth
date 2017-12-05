@@ -41,6 +41,51 @@ end
  player1x = 77
  player1y = 80
  player0x = 77
+
+
+ if _sc1=%00 && _sc2=%00 && _sc3 < $20 then __Skip_Level_Change
+ score = $0
+ ;_BitOp_Level = _BitOp_Level * 2
+ if _BitOp_Level
+__Skip_Level_Change
+ if !_Bit0_Level_0{0} then goto __Level_1
+ playfield:
+ 
+end
+__Level_1:
+if !_Bit0_Level_1{1} then goto __Level_2
+ playfield:
+ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ X..............................X
+ X..X.....X.....XX.....X.....X..X
+ X.....X........XX........X.....X
+ X..............................X
+ X..X.....X............X.....X..X
+ X..............................X
+ X.....X........XX........X.....X
+ X..X.....X.....XX.....X.....X..X
+ X..............................X
+ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+end
+__Level_2
+ if !_Bit0_Level_2{2} then goto __Skip_Level_2
+ playfield:
+ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ X..............................X
+ X..............................X
+ X.............XXXX.............X
+ X..............................X
+ X.........X..........X.........X
+ X.........X..........X.........X
+ X..............................X
+ X.............XXXX.............X
+ X..............................X
+ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+end
+__Skip_Level_2
+ ;if _Bit3_Game_Won{3} then goto __Game_Won
+
+
  player0y = 72
  COLUPF = 14
 
