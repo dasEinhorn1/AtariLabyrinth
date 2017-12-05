@@ -84,8 +84,12 @@
    ;```````````````````````````````````````````````````````````````
    ;  Game Stuff
    ;
+   const _Score_Phase_1 = 10
+   const _Score_Phase_2 = 30
+
    dim _Bit0_Carrying_Gem = x
    dim _Bit1_Game_Over = x
+   dim _Bit2_Start_Screen = x
 
    ;```````````````````````````````````````````````````````````````
    ;  Bits that do various jobs.
@@ -98,8 +102,6 @@
    ;  Makes better random numbers.
    ;
    dim rand16 = z
-
-
 
    ;***************************************************************
    ;
@@ -288,7 +290,7 @@ end
    dim _sc2 = score+1 ; 1,000s and 100s (00 XX 00)
    dim _sc3 = score+2 ; 10s and ones (00 00 XX)
 
-   r = 2
+   r = %00000010
    dim _Chase_Speed = r
 
    ;***************************************************************
@@ -300,9 +302,6 @@ end
 __Main_Loop
 
    if _Bit1_Game_Over{1} then if joy0fire goto __Start_Restart
-
-   if score > 15 then _Chase_Speed = 1
-   if score > 30 then _Chase_Speed = 0
 
    ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
    ;  Check collision
@@ -330,6 +329,10 @@ __Skip_Player_Caught
    COLUP0 = $9C
    COLUP1 = $34
    scorecolor = $9C
+
+   if _sc1=%00 && _sc2=%00 && _sc3 >= %00 + _Score_Phase_2 then _Chase_Speed = 0 : goto __Skip_Speed_Check2 else COLUP1 = $33
+   if _sc1=%00 && _sc2=%00 && _sc3 >= %00 + _Score_Phase_1 then _Chase_Speed = 1 else COLUP1 = $30
+__Skip_Speed_Check2
 
    ;***************************************************************
    ;
@@ -371,7 +374,7 @@ __Skip_Joystick_Precheck
    ;
    temp5 = (player0x-11)/4
 
-   temp6 = (player0y-9)/8
+   temp6 = (player0y-8)/8
 
    if temp5 < 34 then if pfread(temp5,temp6) then goto __Skip_Joy0_Up
 
@@ -465,7 +468,7 @@ __Skip_Joy0_Down
 
    if temp6 < 34 then if pfread(temp6,temp5) then goto __Skip_Joy0_Left
 
-   temp3 = (player0y-8)/8
+   temp3 = (player0y-7)/8
 
    if temp6 < 34 then if pfread(temp6,temp3) then goto __Skip_Joy0_Left
 
@@ -506,7 +509,7 @@ __Skip_Joy0_Left
 
    if temp6 < 34 then if pfread(temp6,temp5) then goto __Skip_Joy0_Right
 
-   temp3 = (player0y-8)/8
+   temp3 = (player0y-7)/8
 
    if temp6 < 34 then if pfread(temp6,temp3) then goto __Skip_Joy0_Right
 
@@ -529,9 +532,7 @@ __Skip_Joy0_Right
 
    temp5 = _Minotaur_Awareness_Size
 
-   if _Frame_Count & _Chase_Speed then goto __Skip_AI_Right
-
-   goto __Skip_AI_Right
+   if _Frame_Count&_Chase_Speed then goto __Skip_AI_Right
 
    ; check player top >= awareness bottom
    if player0y >= temp4 + temp5 then goto __Skip_AI_Right
