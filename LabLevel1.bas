@@ -93,6 +93,8 @@
    dim _Bit1_Game_Over = x
    dim _Bit2_Player_Moving = x
    dim _Bit3_Mino_Moving = x
+   dim _Bit4_New_Chase_Start = x
+   dim _Bit5_Game_Over_Music_Played = x
 
    ;```````````````````````````````````````````````````````````````
    ;  Bits that do various jobs.
@@ -156,6 +158,34 @@
    ;
 __Start_Restart
 
+   ;***************************************************************
+   ;
+   ;  Mutes volume of both sound channels.
+   ;
+   AUDV0 = 0 : AUDV1 = 0
+
+
+   ;***************************************************************
+   ;
+   ;  Clears 24 of the normal 26 variables (fastest way).
+   ;  The variable y holds a bit that should not be cleared. The
+   ;  variable z is used for random numbers in this program and
+   ;  clearing it would mess up those random numbers.
+   ;
+   a = 0 : b = 0 : c = 0 : d = 0 : e = 0 : f = 0 : g = 0 : h = 0 : i = 0
+   j = 0 : k = 0 : l = 0 : m = 0 : n = 0 : o = 0 : p = 0 : q = 0 : r = 0
+   s = 0 : t = 0 : u = 0 : v = 0 : w = 0 : x = 0
+
+
+   ;***************************************************************
+   ;
+   ;  Clears 7 of the 8 all-purpose bits. The 4th bit toggles the
+   ;  playfield when the reset switch is pressed in this example,
+   ;  so we have to leave it alone.
+   ;
+   _BitOp_01 = _BitOp_01 & %00010000
+
+
 __Title_Screen
    playfield:
    ................................
@@ -192,11 +222,13 @@ end
 end
 
 __Start_Screen_Loop
-   if joy0up then  goto __Skip_Start_Screen
+   if _Master_Counter <= 10 then goto __Skip_Joy_Checks
+   if joy0up then goto __Skip_Start_Screen
    if joy0down then goto __Skip_Start_Screen
    if joy0right then goto __Skip_Start_Screen
    if joy0left then goto __Skip_Start_Screen
    if joy0fire then goto __Skip_Start_Screen
+__Skip_Joy_Checks
    player1x = 77
    player1y = 80
    player0x = 77
@@ -204,39 +236,14 @@ __Start_Screen_Loop
    COLUP0 = $36
    COLUP1 = $14
    COLUPF = $14
+   COLUBK = 0
+   scorecolor = 0
+   _Master_Counter = _Master_Counter + 1
    drawscreen
    goto __Start_Screen_Loop
 
-    _Master_Counter = 0 : _Frame_Counter = 0
+   _Master_Counter = 0 : _Frame_Counter = 0
 __Skip_Start_Screen
-
-   ;***************************************************************
-   ;
-   ;  Mutes volume of both sound channels.
-   ;
-   AUDV0 = 0 : AUDV1 = 0
-
-
-   ;***************************************************************
-   ;
-   ;  Clears 24 of the normal 26 variables (fastest way).
-   ;  The variable y holds a bit that should not be cleared. The
-   ;  variable z is used for random numbers in this program and
-   ;  clearing it would mess up those random numbers.
-   ;
-   a = 0 : b = 0 : c = 0 : d = 0 : e = 0 : f = 0 : g = 0 : h = 0 : i = 0
-   j = 0 : k = 0 : l = 0 : m = 0 : n = 0 : o = 0 : p = 0 : q = 0 : r = 0
-   s = 0 : t = 0 : u = 0 : v = 0 : w = 0 : x = 0
-
-
-   ;***************************************************************
-   ;
-   ;  Clears 7 of the 8 all-purpose bits. The 4th bit toggles the
-   ;  playfield when the reset switch is pressed in this example,
-   ;  so we have to leave it alone.
-   ;
-   _BitOp_01 = _BitOp_01 & %00010000
-
 
    ;***************************************************************
    ;
@@ -323,8 +330,8 @@ end
    dim _sc2 = score+1 ; 1,000s and 100s (00 XX 00)
    dim _sc3 = score+2 ; 10s and ones (00 00 XX)
 
-   r = $3
-   dim _Chase_Speed = r
+   t = $3
+   dim _Chase_Speed = t
 
 ;***************************************************************
 ;***************************************************************
@@ -407,6 +414,161 @@ end
 __Mn_Frame_Done
 
 
+   ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+   ;  Sound stuff
+   if !_Ch0_Sound then goto __Skip_Ch_0
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Decreases the channel 0 duration counter.
+   ;
+   _Ch0_Duration = _Ch0_Duration - 1
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Skips all channel 0 sounds if duration counter is greater
+   ;  than zero
+   ;
+   if _Ch0_Duration then goto __Skip_Ch_0
+
+   if _Ch0_Sound <> 1 then goto __Skip_Ch0_Sound_001
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Retrieves first part of channel 0 data.
+   ;
+   temp4 = _SD_Gem_Coll[_Ch0_Counter]
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Checks for end of data.
+   ;
+   if temp4 = 255 then goto __Clear_Ch_0
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Retrieves more channel 0 data.
+   ;
+   _Ch0_Counter = _Ch0_Counter + 1
+   temp5 = _SD_Gem_Coll[_Ch0_Counter] : _Ch0_Counter = _Ch0_Counter + 1
+   temp6 = _SD_Gem_Coll[_Ch0_Counter] : _Ch0_Counter = _Ch0_Counter + 1
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Plays channel 0.
+   ;
+   AUDV0 = temp4
+   AUDC0 = temp5
+   AUDF0 = temp6
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Sets Duration.
+   ;
+   _Ch0_Duration = _SD_Gem_Coll[_Ch0_Counter] : _Ch0_Counter = _Ch0_Counter + 1
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Jumps to end of channel 0 area.
+   ;
+   goto __Skip_Ch_0
+
+__Skip_Ch0_Sound_001
+
+   if _Ch0_Sound <> 2 then goto __Skip_Ch0_Sound_002
+   ;```````````````````````````````````````````````````````````````
+   ;  Retrieves first part of channel 0 data.
+   ;
+   temp4 = _SD_Gem_Drop[_Ch0_Counter]
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Checks for end of data.
+   ;
+   if temp4 = 255 then goto __Clear_Ch_0
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Retrieves more channel 0 data.
+   ;
+   _Ch0_Counter = _Ch0_Counter + 1
+   temp5 = _SD_Gem_Drop[_Ch0_Counter] : _Ch0_Counter = _Ch0_Counter + 1
+   temp6 = _SD_Gem_Drop[_Ch0_Counter] : _Ch0_Counter = _Ch0_Counter + 1
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Plays channel 0.
+   ;
+   AUDV0 = temp4
+   AUDC0 = temp5
+   AUDF0 = temp6
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Sets Duration.
+   ;
+   _Ch0_Duration = _SD_Gem_Drop[_Ch0_Counter] : _Ch0_Counter = _Ch0_Counter + 1
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Jumps to end of channel 0 area.
+   ;
+   goto __Skip_Ch_0
+
+__Skip_Ch0_Sound_002
+
+   if _Ch0_Sound <> 3 then goto __Skip_Ch0_Sound_003
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Retrieves first part of channel 0 data.
+   ;
+   temp4 = _SD_Mino_Roar[_Ch0_Counter]
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Checks for end of data.
+   ;
+   if temp4 = 255 then goto __Clear_Ch_0
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Retrieves more channel 0 data.
+   ;
+   _Ch0_Counter = _Ch0_Counter + 1
+   temp5 = _SD_Mino_Roar[_Ch0_Counter] : _Ch0_Counter = _Ch0_Counter + 1
+   temp6 = _SD_Mino_Roar[_Ch0_Counter] : _Ch0_Counter = _Ch0_Counter + 1
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Plays channel 0.
+   ;
+   AUDV0 = temp4
+   AUDC0 = temp5
+   AUDF0 = temp6
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Sets Duration.
+   ;
+   _Ch0_Duration = _SD_Mino_Roar[_Ch0_Counter] : _Ch0_Counter = _Ch0_Counter + 1
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Jumps to end of channel 0 area.
+   ;
+   goto __Skip_Ch_0
+
+__Skip_Ch0_Sound_003
+;***************************************************************
+;
+;  Jumps to end of channel 0 area. (This catches any mistakes.)
+;
+   goto __Skip_Ch_0
+
+
+
+;***************************************************************
+;
+;  Clears channel 0.
+;
+__Clear_Ch_0
+
+   _Ch0_Sound = 0 : AUDV0 = 0
+
+
+
+;***************************************************************
+;
+;  End of channel 0 area.
+;
+__Skip_Ch_0
+
+
+
+   ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+   ; level stuff
    ;if !_Bit0_Level_0{0} then __Skip_Level_1
 
 
@@ -433,11 +595,17 @@ __Skip_Player_Caught
    ;  Sets color of player0 sprite.
    ;
    COLUP0 = $9C
-   COLUP1 = $34
+   if _Chase_Speed > $1 then COLUP1 = $36
+   if _Chase_Speed = $1 then COLUP1 = $35
+   if _Chase_Speed = $0 then COLUP1 = $33
    scorecolor = $9C
 
-   if _sc1=%00 && _sc2=%00 && _sc3 > $5 then _Chase_Speed = $0 : goto __Skip_Speed_Check2 else COLUP1 = $33
-   if _sc1=%00 && _sc2=%00 && _sc3 > $1 then _Chase_Speed = $1 else COLUP1 = $30
+   if _sc1=%00 && _sc2=%00 && _sc3 = $30 then _Chase_Speed = $0 else goto __Skip_Speed_Check1
+   if _Ch0_Sound <> 3 && !_Bit4_New_Chase_Start{4} then _Bit4_New_Chase_Start{4} = 1 : _Ch0_Sound = 3 : _Ch0_Duration = 1 : _Ch0_Counter = 0
+   goto __Skip_Speed_Check2
+__Skip_Speed_Check1
+   if _sc1=%00 && _sc2=%00 && _sc3 = $15 then _Chase_Speed = $1 else goto __Skip_Speed_Check2
+   if _Ch0_Sound <> 3 && !_Bit4_New_Chase_Start{4} then _Bit4_New_Chase_Start{4} = 1 : _Ch0_Sound = 3 : _Ch0_Duration = 1 : _Ch0_Counter = 0
 __Skip_Speed_Check2
 
    ;***************************************************************
@@ -631,12 +799,12 @@ __Skip_Joy0_Left
 
 __Skip_Joy0_Right
 
-
+;------------------------------------------------------------------------
+;     Minotaur Movement
+;
    ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
    ;  If the player is within the awareness radius of the Minotaur
    ;
-
-
    temp1 = player0x + 8 ; player0 right side
    temp2 = player0y + 8 ; player0 bottom
 
@@ -678,6 +846,7 @@ __Skip_Joy0_Right
    ;  Turns on the up direction bit.
    ;
    _Bit0_P1_Dir_Up{0} = 1
+   _Bit1_P1_Dir_Down{1} = 0
 
    ;```````````````````````````````````````````````````````````````
    ;  Skips this section if hitting the edge.
@@ -722,7 +891,7 @@ __Skip_AI_Up
    ;  Turns on the down direction bit.
    ;
    _Bit1_P1_Dir_Down{1} = 1
-
+   _Bit0_P1_Dir_Up{0} = 0
    ;```````````````````````````````````````````````````````````````
    ;  Skips this section if hitting the edge.
    ;
@@ -767,6 +936,7 @@ __Skip_AI_Down
    ;  Turns on the left direction bit.
    ;
    _Bit2_P1_Dir_Left{2} = 1
+   _Bit3_P1_Dir_Right{3} = 0
 
    ;```````````````````````````````````````````````````````````````
    ;  Skips this section if hitting the edge.
@@ -789,13 +959,10 @@ __Skip_AI_Down
    ;```````````````````````````````````````````````````````````````
    ;  Moves player1 left.
    ;
-   REFP1 = 8
    _Bit3_Mino_Moving{3} = 1
    player1x = player1x - 1
 
 __Skip_AI_Left
-
-
 
    ;***************************************************************
    ;
@@ -808,8 +975,8 @@ __Skip_AI_Left
    ;```````````````````````````````````````````````````````````````
    ;  Turns on the right direction bit.
    ;
+   _Bit2_P1_Dir_Left{2} = 0
    _Bit3_P1_Dir_Right{3} = 1
-
    ;```````````````````````````````````````````````````````````````
    ;  Skips this section if hitting the edge.
    ;
@@ -836,6 +1003,8 @@ __Skip_AI_Left
 
 __Skip_AI_Right
 
+   if _Bit2_P1_Dir_Left{2} then REFP1 = 8
+
 
 ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ;  Pick up the gem
@@ -843,6 +1012,10 @@ __Skip_AI_Right
    if !collision(missile0, player0) then __Skip_Gem_Collection
    _Bit0_Carrying_Gem{0} = 1
    missile0x = 200 : missile0y = 200
+   ;```````````````````````````````````````````````````````````````
+   ;  Turns on sound effect.
+   ;
+   if _Ch0_Sound <> 1 then _Ch0_Sound = 1 : _Ch0_Duration = 1 : _Ch0_Counter = 0
 __Skip_Gem_Collection
 
    ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -852,11 +1025,17 @@ __Skip_Gem_Collection
    if !_Bit0_Carrying_Gem{0} then __Skip_Gem_Deposit
    _Bit0_Carrying_Gem{0} = 0
    score = score + 1
+   _Bit4_New_Chase_Start{4} = 0
+   if _Ch0_Sound <> 2 then _Ch0_Sound = 2 : _Ch0_Duration = 1 : _Ch0_Counter = 0
    missile0x = (rand & 118) + 23 : missile0y = (rand & 70) + 9
 __Skip_Gem_Deposit
 
 __Game_Over
    if !_Bit1_Game_Over{1} then goto __Skip_Game_Over
+   if _Ch0_Sound = 3 || _Bit5_Game_Over_Music_Played{5} then goto __Skip_Game_Over_Music
+   _Ch0_Sound = 3 : _Ch0_Duration = 1 : _Ch0_Counter = 0
+   _Bit5_Game_Over_Music_Played{5} = 1
+__Skip_Game_Over_Music
    COLUPF = 14
    scorecolor = 14
    COLUBK = $36
@@ -986,3 +1165,33 @@ __Mn02
    %00100100
 end
    goto __Mn_Frame_Done
+
+   data _SD_Gem_Coll
+   8,4,7
+   4
+   8,4,6
+   8
+   255
+end
+   data _SD_Gem_Drop
+   8,4,6
+   4
+   8,4,7
+   8
+   8,4,4
+   4
+   255
+end
+   data _SD_Mino_Roar
+   8,14,5
+   12
+   8,14,4
+   8
+   8,14,6
+   4
+   8,14,3
+   12
+   8,14,4
+   8
+   255
+end
