@@ -74,7 +74,8 @@
    dim _Bit6_P1_Col_Left = k
    dim _Bit7_P1_Col_Right = k
 
-   dim _Frame_Count = h
+   dim _Master_Counter = a
+   dim _Frame_Counter = b
 
    ;'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
    ;  Minotaur awareness radius
@@ -84,12 +85,14 @@
    ;```````````````````````````````````````````````````````````````
    ;  Game Stuff
    ;
-   const _Score_Phase_1 = 10
-   const _Score_Phase_2 = 30
-
+   l = $15
+   m = $30
+   dim _Score_Phase_1 = m
+   dim _Score_Phase_2 = l
    dim _Bit0_Carrying_Gem = x
    dim _Bit1_Game_Over = x
-   dim _Bit2_Start_Screen = x
+   dim _Bit2_Player_Moving = x
+   dim _Bit3_Mino_Moving = x
 
    ;```````````````````````````````````````````````````````````````
    ;  Bits that do various jobs.
@@ -97,6 +100,12 @@
    dim _BitOp_01 = y
    dim _Bit0_Reset_Restrainer = y
    dim _Bit1_Toggle_Screen = y
+
+   ;```````````````````````````````````````````````````````````````
+   ; Sound stuff
+   dim _Ch0_Sound = q
+   dim _Ch0_Duration = r
+   dim _Ch0_Counter = s
 
    ;```````````````````````````````````````````````````````````````
    ;  Makes better random numbers.
@@ -147,6 +156,59 @@
    ;
 __Start_Restart
 
+__Title_Screen
+   playfield:
+   ................................
+   X..XXX.XX..X.X.XX..X.XX..XXX.X.X
+   X..X.X.X.X.X.X.X.X.X.X.X..X..X.X
+   X..XXX.XX...X..XX..X.X.X..X..XXX
+   X..X.X.X.X..X..X.X.X.X.X..X..X.X
+   XX.X.X.XX...X..X.X.X.X.X..X..X.X
+   ................................
+   ...XXXXXXXXXXXXXXXXXXXXXXXXXX...
+   ....X.X.X.X.X.X..X.X.X.X.X.X....
+   ...XXXXXXXXXXXX..XXXXXXXXXXXX...
+   ................................
+end
+   player0:
+   %01100110
+   %00100100
+   %10011001
+   %10111101
+   %01111110
+   %00011000
+   %00111100
+   %00100100
+end
+   player1:
+   %11111111
+   %00000000
+   %11111111
+   %10000001
+   %01111110
+   %11000011
+   %00111100
+   %11100111
+end
+
+__Start_Screen_Loop
+   if joy0up then  goto __Skip_Start_Screen
+   if joy0down then goto __Skip_Start_Screen
+   if joy0right then goto __Skip_Start_Screen
+   if joy0left then goto __Skip_Start_Screen
+   if joy0fire then goto __Skip_Start_Screen
+   player1x = 77
+   player1y = 80
+   player0x = 77
+   player0y = 72
+   COLUP0 = $36
+   COLUP1 = $14
+   COLUPF = $14
+   drawscreen
+   goto __Start_Screen_Loop
+
+    _Master_Counter = 0 : _Frame_Counter = 0
+__Skip_Start_Screen
 
    ;***************************************************************
    ;
@@ -206,7 +268,7 @@ __Start_Restart
    ;
    ;  Sets playfield color.
    ;
-   COLUPF = $2C
+   COLUPF = $14
 
 
    ;***************************************************************
@@ -232,45 +294,103 @@ __Start_Restart
    ;
    _Bit0_Reset_Restrainer{0} = 1
 
-;   playfield:
-;   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-;   X..............................X
-;   X..............................X
-;   X..............................X
-;   X..............................X
-;   X..............XX..............X
-;   X..............................X
-;   X..............................X
-;   X..............................X
-;   X..............................X
-;   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-;end
-
    playfield:
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    X..............................X
-   X..XXXXXX....XX..XX....XXXXXX..X
-   X..X........XXX..XXX........X..X
+   X..X..XXX....XX..XX....XXX..X..X
+   X..X.........XX..XX.........X..X
    X..............................X
    X..XX..XX..XX......XX..XX..XX..X
    X..............................X
-   X..X........XXX..XXX........X..X
-   X..XXXXXX....XX..XX....XXXXXX..X
+   X..X.........XX..XX.........X..X
+   X..X..XXX....XX..XX....XXX..X..X
    X..............................X
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 end
 
+;***************************************************************
+;
+;  Defines shape of player0 sprite. (Minotaur)
+;
+
+
+   ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+   ;  Reset the score
+   ;
+   score = 0
+
+   dim _sc1 = score ; 100,000s and 10,000s (XX 00 00)
+   dim _sc2 = score+1 ; 1,000s and 100s (00 XX 00)
+   dim _sc3 = score+2 ; 10s and ones (00 00 XX)
+
+   r = $3
+   dim _Chase_Speed = r
+
+;***************************************************************
+;***************************************************************
+;
+;  MAIN LOOP (Main game loop)
+;
+;
+__Main_Loop
+
+   if _Bit1_Game_Over{1} then if joy0fire goto __Start_Restart
+
+   ;***************************************************************
+   ;
+   ;  Animation counters.
+   ;
+   ;```````````````````````````````````````````````````````````````
+   ;  Increments _Master_Counter.
+   ;
+   _Master_Counter = _Master_Counter + 1
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Skips this section if _Master_Counter is less than 7.
+   ;
+   if _Master_Counter < 7 then goto __Skip_Counters
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Increments _Frame_Counter and clears _Master_Counter.
+   ;
+   _Frame_Counter = _Frame_Counter + 1 : _Master_Counter = 0
+
+   ;```````````````````````````````````````````````````````````````
+   ;  Clears _Frame_Counter if it is greater than 3.
+   ;
+   if _Frame_Counter > 3 then _Frame_Counter = 0
+
+__Skip_Counters
+
+
+
+   ;***************************************************************
+   ;
+   ;  Player animation (4 frames, 0 through 3).
+   ;
+
+   ; Player is not moving
    player0:
-   %00110110
+   %01100110
    %00100100
    %00100100
-   %00011000
+   %01011010
    %01011010
    %00111100
    %00011000
    %00011000
 end
+   if !_Bit2_Player_Moving{2} goto __Pl_Frame_Done
+   on _Frame_Counter goto __Pl00 __Pl01 __Pl00 __Pl02
 
+__Pl_Frame_Done
+
+
+
+   ;***************************************************************
+   ;
+   ;  Minotaur animation (4 frames, 0 through 3).
+   ;
    player1:
    %01100110
    %00100100
@@ -281,27 +401,14 @@ end
    %00111100
    %00100100
 end
-   ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-   ;  Reset the score
-   ;
-   score = 0
+   if !_Bit3_Mino_Moving{3} goto __Mn_Frame_Done
+   on _Frame_Counter goto __Mn00 __Mn01 __Mn00 __Mn02
 
-   dim _sc1 = score ; 100,000s and 10,000s (XX 00 00)
-   dim _sc2 = score+1 ; 1,000s and 100s (00 XX 00)
-   dim _sc3 = score+2 ; 10s and ones (00 00 XX)
+__Mn_Frame_Done
 
-   r = %00000010
-   dim _Chase_Speed = r
 
-   ;***************************************************************
-   ;***************************************************************
-   ;
-   ;  MAIN LOOP (MAKES THE PROGRAM GO)
-   ;
-   ;
-__Main_Loop
+   ;if !_Bit0_Level_0{0} then __Skip_Level_1
 
-   if _Bit1_Game_Over{1} then if joy0fire goto __Start_Restart
 
    ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
    ;  Check collision
@@ -315,12 +422,11 @@ __Skip_Player_Caught
    ;
    ;  Defines missile0 size.
    ;
-   NUSIZ0 = $10 : missile0height = 1
+   NUSIZ0 = $20 : missile0height = 2
    NUSIZ1 = $30 : missile1height = 7
 
    missile1x = 78 : missile1y = 48
 
-   _Frame_Count = _Frame_Count + 1
 
    ;***************************************************************
    ;
@@ -330,8 +436,8 @@ __Skip_Player_Caught
    COLUP1 = $34
    scorecolor = $9C
 
-   if _sc1=%00 && _sc2=%00 && _sc3 >= %00 + _Score_Phase_2 then _Chase_Speed = 0 : goto __Skip_Speed_Check2 else COLUP1 = $33
-   if _sc1=%00 && _sc2=%00 && _sc3 >= %00 + _Score_Phase_1 then _Chase_Speed = 1 else COLUP1 = $30
+   if _sc1=%00 && _sc2=%00 && _sc3 > $5 then _Chase_Speed = $0 : goto __Skip_Speed_Check2 else COLUP1 = $33
+   if _sc1=%00 && _sc2=%00 && _sc3 > $1 then _Chase_Speed = $1 else COLUP1 = $30
 __Skip_Speed_Check2
 
    ;***************************************************************
@@ -341,8 +447,8 @@ __Skip_Speed_Check2
    ;```````````````````````````````````````````````````````````````
    ;  Skips section if joystick hasn't been moved.
    ;
+   _Bit2_Player_Moving{2} = 0
    if !joy0up && !joy0down && !joy0left && !joy0right then goto __Skip_Joystick_Precheck
-
    ;```````````````````````````````````````````````````````````````
    ;  Clears player0 direction bits since joystick has been moved.
    ;
@@ -389,6 +495,7 @@ __Skip_Joystick_Precheck
    ;```````````````````````````````````````````````````````````````
    ;  Moves player0 up.
    ;
+   _Bit2_Player_Moving{2} = 1
    player0y = player0y - 1
 
 __Skip_Joy0_Up
@@ -434,6 +541,7 @@ __Skip_Joy0_Up
    ;```````````````````````````````````````````````````````````````
    ;  Moves player0 down.
    ;
+   _Bit2_Player_Moving{2} = 1
    player0y = player0y + 1
 
 __Skip_Joy0_Down
@@ -475,6 +583,8 @@ __Skip_Joy0_Down
    ;```````````````````````````````````````````````````````````````
    ;  Moves player0 left.
    ;
+   _Bit2_Player_Moving{2} = 1
+   REFP0 = 8
    player0x = player0x - 1
 
 __Skip_Joy0_Left
@@ -516,6 +626,7 @@ __Skip_Joy0_Left
    ;```````````````````````````````````````````````````````````````
    ;  Moves player0 right.
    ;
+   _Bit2_Player_Moving{2} = 1
    player0x = player0x + 1
 
 __Skip_Joy0_Right
@@ -524,6 +635,8 @@ __Skip_Joy0_Right
    ;''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
    ;  If the player is within the awareness radius of the Minotaur
    ;
+
+
    temp1 = player0x + 8 ; player0 right side
    temp2 = player0y + 8 ; player0 bottom
 
@@ -532,7 +645,8 @@ __Skip_Joy0_Right
 
    temp5 = _Minotaur_Awareness_Size
 
-   if _Frame_Count&_Chase_Speed then goto __Skip_AI_Right
+   if _Master_Counter&_Chase_Speed then goto __Skip_AI_Right
+   _Bit3_Mino_Moving{3} = 0
 
    ; check player top >= awareness bottom
    if player0y >= temp4 + temp5 then goto __Skip_AI_Right
@@ -590,11 +704,10 @@ __Skip_Joy0_Right
    ;```````````````````````````````````````````````````````````````
    ;  Moves player1 up.
    ;
+   _Bit3_Mino_Moving{3} = 1
    player1y = player1y - 1
 
 __Skip_AI_Up
-
-
 
    ;***************************************************************
    ;
@@ -635,6 +748,7 @@ __Skip_AI_Up
    ;```````````````````````````````````````````````````````````````
    ;  Moves player1 down.
    ;
+   _Bit3_Mino_Moving{3} = 1
    player1y = player1y + 1
 
 __Skip_AI_Down
@@ -675,6 +789,8 @@ __Skip_AI_Down
    ;```````````````````````````````````````````````````````````````
    ;  Moves player1 left.
    ;
+   REFP1 = 8
+   _Bit3_Mino_Moving{3} = 1
    player1x = player1x - 1
 
 __Skip_AI_Left
@@ -715,6 +831,7 @@ __Skip_AI_Left
    ;```````````````````````````````````````````````````````````````
    ;  Moves player1 right.
    ;
+   _Bit3_Mino_Moving{3} = 1
    player1x = player1x + 1
 
 __Skip_AI_Right
@@ -795,3 +912,77 @@ __Skip_Game_Over
    ;  Restarts the program.
    ;
    goto __Start_Restart
+
+__Pl00
+   player0:
+   %00110110
+   %00100100
+   %00100100
+   %01011010
+   %01011010
+   %00111100
+   %00011000
+   %00011000
+end
+   goto __Pl_Frame_Done
+__Pl01
+   player0:
+   %00110000
+   %00100110
+   %00100100
+   %00011010
+   %01011010
+   %00111100
+   %00011000
+   %00011000
+end
+   goto __Pl_Frame_Done
+__Pl02
+   player0:
+   %00000110
+   %00110100
+   %00100100
+   %01011000
+   %01011010
+   %00111100
+   %00011000
+   %00011000
+end
+   goto __Pl_Frame_Done
+
+__Mn00
+   player1:
+   %00110110
+   %00100100
+   %10011001
+   %10111101
+   %01111110
+   %00011000
+   %00111100
+   %00100100
+end
+   goto __Mn_Frame_Done
+__Mn01
+   player1:
+   %00000110
+   %00110100
+   %00011001
+   %10111101
+   %01111110
+   %00011000
+   %00111100
+   %00100100
+end
+   goto __Mn_Frame_Done
+__Mn02
+   player1:
+   %00110000
+   %00100110
+   %10011000
+   %10111101
+   %01111110
+   %00011000
+   %00111100
+   %00100100
+end
+   goto __Mn_Frame_Done
